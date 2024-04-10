@@ -4,13 +4,8 @@ from wtforms.validators import DataRequired, Email, Length, NumberRange, InputRe
 
 
 class RegisterForm(FlaskForm):
-    email = EmailField('Login/email', validators=[DataRequired(), Email(), InputRequired()])
-    password = PasswordField('Password', validators=[DataRequired(), InputRequired()])
-    password_again = PasswordField('Repeat password', validators=[DataRequired(), InputRequired()])
-    surname = StringField('Surname', validators=[DataRequired(), InputRequired()])
-    name = StringField('Name', validators=[DataRequired(), InputRequired()])
-    age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=18, max=80), InputRequired()])
-    position = StringField('Position', validators=[DataRequired()])
-    speciality = StringField("Speciality")
-    address = StringField("Address")
-    submit = SubmitField('Submit')
+    login = StringField('Логин', validators=[DataRequired(), Length(min=4, max=45), InputRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired(), Length(min=8, max=45), InputRequired()])
+    password_again = PasswordField('Повторите пароль', validators=[DataRequired(), InputRequired()])
+    description = TextAreaField("Описание")
+    submit = SubmitField('Отправить')

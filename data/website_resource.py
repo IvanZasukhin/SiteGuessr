@@ -2,7 +2,7 @@ from flask import abort, jsonify
 from flask_restful import Resource
 
 from . import db_session
-from .user_parser import *
+from .website_parser import *
 from .websites import Website
 
 

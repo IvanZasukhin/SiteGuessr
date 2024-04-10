@@ -14,14 +14,14 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
                            primary_key=True, autoincrement=True)
     login = sqlalchemy.Column(sqlalchemy.String, unique=True, nullable=True)
     description = sqlalchemy.Column(sqlalchemy.String)  # описание
-    games_played = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # количество сыгранных игр
-    best_score = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # лучший счёт
     created_date = sqlalchemy.Column(sqlalchemy.DateTime)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime)
 
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+
+    statistics = orm.relationship("Statistics", back_populates='user')
     games = orm.relationship("Game", back_populates='user')
-    websites = orm.relationship("Website", back_populates='user')
+    website = orm.relationship("Website", back_populates='user')
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
