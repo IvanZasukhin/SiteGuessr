@@ -16,4 +16,3 @@ class Website(SqlAlchemyBase, SerializerMixin):
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"), nullable=True)
 
     user = orm.relationship('User')
-    website = orm.relationship('Website')

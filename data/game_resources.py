@@ -3,7 +3,7 @@ from flask_restful import Resource
 
 from . import db_session
 from .games import Game
-from .user_parser import *
+from .game_parser import *
 
 
 class GameResource(Resource):
