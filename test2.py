@@ -10,8 +10,8 @@ def webpage(url, folder, name):
         bypass_robots=True,
         debug=True,
         open_in_browser=True,
-        delay=False,
-        threaded=False,
+        delay=True,
+        threaded=False
     )
 
 
@@ -28,4 +28,4 @@ def website(url, folder, name):
     )
 
 
-webpage('https://ya.ru/', 'E://Python save/SiteGuessr', 'yandex')
+webpage('https://ya.ru/', 'C://Users/CUBER/Desktop/Savin/SiteGuessr', 'ya')

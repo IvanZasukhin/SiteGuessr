@@ -24,12 +24,12 @@ def savePage(url, pagepath='page'):
                 except Exception as exc:
                     print(exc, file=sys.stderr)
 
+    path, _ = os.path.splitext(pagepath)
+    pagefolder = path + '_files'
     session = requests.Session()
     # ... whatever other requests config you need here
     response = session.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
-    path, _ = os.path.splitext(pagepath)
-    pagefolder = path + '_files'  # page contents folder
     tags_inner = {'img': 'src', 'link': 'href', 'script': 'src'}  # tag&inner tags to grab
     for tag, inner in tags_inner.items():  # saves resource files and rename refs
         savenRename(soup, pagefolder, session, url, tag, inner)
@@ -37,4 +37,4 @@ def savePage(url, pagepath='page'):
         file.write(soup.prettify('utf-8'))
 
 
-savePage('https://borjomi.com/ru/', 'borjomi')
+savePage('https://docs.python.org/3/library/urllib.request.html#urllib.request.URLopener', 'f')
