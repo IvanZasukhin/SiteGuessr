@@ -14,12 +14,13 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
                            primary_key=True, autoincrement=True)
     login = sqlalchemy.Column(sqlalchemy.String, unique=True, nullable=True)
     description = sqlalchemy.Column(sqlalchemy.String)  # описание
+    roles = sqlalchemy.Column(sqlalchemy.String, default="newbie")
     created_date = sqlalchemy.Column(sqlalchemy.DateTime)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime)
 
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
 
-    statistics = orm.relationship("Statistics", back_populates='user')
+    statistic = orm.relationship("Statistic", back_populates='user', uselist=False)
     games = orm.relationship("Game", back_populates='user')
     website = orm.relationship("Website", back_populates='user')
 

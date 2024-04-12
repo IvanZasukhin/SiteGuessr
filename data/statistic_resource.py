@@ -4,7 +4,7 @@ from flask import abort, jsonify
 from flask_restful import Resource
 
 from . import db_session
-from .statistics import Statistics
+from .statistic import Statistic
 from .statistic_parser import *
 
 
@@ -12,7 +12,7 @@ class StatisticResource(Resource):
     def get(self, statistic_id):
         abort_if_user_not_found(statistic_id)
         session = db_session.create_session()
-        statistic = session.query(Statistics).get(statistic_id)
+        statistic = session.query(Statistic).get(statistic_id)
         return jsonify({'statistic': statistic.to_dict(
             only=("id", "user_id", "total_games", "correct_answers",
                   "wrong_answers", "average_score", "best_score"))})
@@ -20,7 +20,7 @@ class StatisticResource(Resource):
     def delete(self, statistic_id):
         abort_if_user_not_found(statistic_id)
         session = db_session.create_session()
-        statistic = session.query(Statistics).get(statistic_id)
+        statistic = session.query(Statistic).get(statistic_id)
         session.delete(statistic)
         session.commit()
         return jsonify({'success': 'OK'})
@@ -29,7 +29,7 @@ class StatisticResource(Resource):
         args = parser.parse_args()
         abort_if_user_not_found(statistic_id)
         session = db_session.create_session()
-        statistic = session.query(Statistics).get(statistic_id)
+        statistic = session.query(Statistic).get(statistic_id)
         statistic.user_id = args['user_id']
         statistic.total_games = args['total_games']
         statistic.correct_answers = args['correct_answers']
@@ -43,7 +43,7 @@ class StatisticResource(Resource):
 class StatisticListResource(Resource):
     def get(self):
         session = db_session.create_session()
-        statistic = session.query(Statistics).all()
+        statistic = session.query(Statistic).all()
         return jsonify({'statistic': [
             item.to_dict(
                 only=("id", "user_id", "total_games", "correct_answers",
@@ -53,7 +53,7 @@ class StatisticListResource(Resource):
     def post(self):
         args = parser.parse_args()
         session = db_session.create_session()
-        statistic = Statistics()
+        statistic = Statistic()
         statistic.user_id = args['user_id']
         statistic.total_games = args['total_games']
         statistic.correct_answers = args['correct_answers']
@@ -67,6 +67,6 @@ class StatisticListResource(Resource):
 
 def abort_if_user_not_found(statistic_id):
     session = db_session.create_session()
-    statistic = session.query(Statistics).get(statistic_id)
+    statistic = session.query(Statistic).get(statistic_id)
     if not statistic:
         abort(404, message=f"User {statistic_id} not found")

@@ -4,49 +4,38 @@
 <div class="basis">
     <h1 class="text-center">Лучшие игроки</h1>
     {% if current_user.is_authenticated %}
-        <div class="container">
-            <a href="job" class="btn btn-secondary">Add job</a>
-        </div>
-    {% endif %}
-    {% for user in users %}
     <div class="container">
-        <h2>Action # {{ loop.index }}</h2>
+        <a href="job" class="btn btn-secondary">Add game</a>
+    </div>
+    <br>
+    {% endif %}
+    <div class="container">
         <table class="table">
             <thead>
             <tr class="table-secondary">
                 <th class="col-6" scope="col">Nick</th>
-                <th class="col-6" scope="col">Team leader</th>
-                <th class="col-6" scope="col">Duration</th>
-                <th class="col-6" scope="col">List of collaborators</th>
-                <th class="col-6" scope="col">Is finished</th>
+                <th class="col-6" scope="col">total_games</th>
+                <th class="col-6" scope="col">correct_answers</th>
+                <th class="col-6" scope="col">wrong_answers</th>
+                <th class="col-6" scope="col">average_score</th>
+                <th class="col-6" scope="col">best_score</th>
             </tr>
             </thead>
             <tbody>
+            {% for user in users %}
             <tr class="table-primary">
-                <th>{{ user.login }}</th>
-                <td>{{ job.user.name }} {{ job.user.surname }}</td>
-                <td>{{ job.work_size }}</td>
-                <td>{{ job.collaborators }}</td>
-                {% if job.is_finished: %}
-                    <td class="table-success">Is finished</td>
-                {% else %}
-                    <td class="table-danger">Is not finished</td>
-                {% endif %}
+                <td>{{ user.login }}</td>
+                <td>{{ user.statistic.total_games }}</td>
+                <td>{{ user.statistic.correct_answers }}</td>
+                <td>{{ user.statistic.wrong_answers }}</td>
+                <td>{{ user.statistic.average_score }}</td>
+                <td>{{ user.statistic.best_score }}</td>
             </tr>
+            {% endfor %}
+
             </tbody>
         </table>
-        {% if current_user.is_authenticated and (current_user == job.user or current_user.id == 1) %}
-            <div>
-                <a href="/job/{{ job.id }}" class="btn btn-warning">
-                    Edit top
-                </a>
-                <a href="/job_delete/{{ job.id }}" class="btn btn-danger">
-                    Delete top
-                </a>
-            </div>
-        {% endif %}
     </div>
-    {% endfor %}
 </div>
 
 {% endblock %}
