@@ -52,8 +52,6 @@ class UserListResource(Resource):
         args = parser.parse_args()
         session = db_session.create_session()
         user = User()
-        if session.query(User).filter(User.login == args['login']).first():
-            return jsonify({'message': "There is already such a user"})
         user.login = args['login']
         user.description = args['description']
         user.modified_date = datetime.datetime.now()

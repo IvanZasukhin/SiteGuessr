@@ -1,14 +1,13 @@
 import datetime
 
-from flask import Flask, render_template, redirect, make_response, jsonify
+from flask import Flask, render_template, abort, redirect, make_response, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import Api
-from requests import post
-from sqlalchemy.exc import IntegrityError
 
 from data import db_session
-from data import user_resource, website_resource, game_resources
+from data import user_resource, website_resource, game_resources, statistic_resource
 from data.users import User
+from data.statistic import Statistic
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
 
@@ -23,7 +22,8 @@ login_manager.init_app(app)
 def index():
     db_sess = db_session.create_session()
     params = {"title": "Top players",
-              }
+              "users": [user for user in db_sess.query(User).all()]}
+    print(params["users"])
     return render_template("index.html", **params)
 
 
@@ -63,12 +63,19 @@ def register():
         if form.password.data != form.password_again.data:
             params["message"] = "Password mismatch"
             return render_template('register.html', **params)
-        post_user = post(f'http://localhost:8080/api/users', json={'login': form.login.data,
-                                                                   'description': form.description.data,
-                                                                   'hashed_password': form.password.data}).json()
-        if "message" in post_user:
-            params["message"] = post_user["message"]
-            return render_template('register.html', **params)
+        session = db_session.create_session()
+        user = User()
+        if session.query(User).filter(User.login == form.login.data).first():
+            return jsonify({'message': "There is already such a user"})
+        user.login = form.login.data
+        user.description = form.description.data
+        user.modified_date = datetime.datetime.now()
+        user.created_date = datetime.datetime.now()
+        user.set_password(form.password.data)
+        session.add(user)
+        statistic = Statistic()
+        user.statistic = statistic
+        session.commit()
         return redirect('/login')
     return render_template('register.html', **params)
 
@@ -77,6 +84,15 @@ def register():
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if not current_user.is_authenticated:
+        return redirect("/")
+    params = {"title": "Registration",
+              "statistic": current_user.statistic}
+    return render_template('profile.html', **params)
 
 
 def main():
@@ -90,6 +106,9 @@ def main():
 
     api.add_resource(game_resources.GameListResource, '/api/games')
     api.add_resource(game_resources.GameResource, '/api/game/<int:game_id>')
+
+    api.add_resource(statistic_resource.StatisticListResource, '/api/statistic')
+    api.add_resource(statistic_resource.StatisticResource, '/api/statistic/<int:game_id>')
 
     app.run(port=8080, host='127.0.0.1')
 
