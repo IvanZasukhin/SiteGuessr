@@ -54,9 +54,11 @@ class UserListResource(Resource):
         user = User()
         user.login = args['login']
         user.description = args['description']
+        user.banned = False
+        user.roles = "новичок"
         user.modified_date = datetime.datetime.now()
         user.created_date = datetime.datetime.now()
-        user.set_password(args['hashed_password'])
+        user.set_password(args['password'])
         session.add(user)
         session.commit()
         return jsonify({'id': user.id})

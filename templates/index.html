@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="basis">
+<div class="main-body">
     <h1 class="text-center">Лучшие игроки</h1>
-    {% if current_user.is_authenticated %}
+    {% if current_user.roles == "admin" %}
     <div class="container">
         <a href="job" class="btn btn-secondary">Add game</a>
     </div>
@@ -24,7 +24,7 @@
             <tbody>
             {% for user in users %}
             <tr class="table-primary">
-                <td>{{ user.login }}</td>
+                <td><a class="btn btn-secondary" href="/profile/{{ user.login }}" role="button">{{ user.login }}</a></td>
                 <td>{{ user.statistic.total_games }}</td>
                 <td>{{ user.statistic.correct_answers }}</td>
                 <td>{{ user.statistic.wrong_answers }}</td>

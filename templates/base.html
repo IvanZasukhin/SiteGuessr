@@ -14,38 +14,25 @@
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="/"><h1> SiteGuesser </h1></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Переключатель навигации">
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Главная</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Рекомендуемые</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Цена</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Отключенная</a>
+                        <a class="nav-link active" aria-current="page" href="/game">Играть</a>
                     </li>
                 </ul>
             </div>
             <div>
                 {% if current_user.is_authenticated %}
                 <div class="dropdown dropstart">
-                    <a class="navbar-brand dropdown-toggle"
+                    <button class="navbar-brand dropdown-toggle btn btn-outline-light"
                        id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">{{
                         current_user.login
-                        }}</a>
+                        }}</button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/profile">Профиль</a></li>
+                        <li><a class="dropdown-item" href="/profile/{{ current_user.login }}">Профиль</a></li>
                         <li><a class="dropdown-item" href="#">Другое действие</a></li>
                         <li><a class="dropdown-item" href="/logout">Выйти из профиля</a></li>
                     </ul>
