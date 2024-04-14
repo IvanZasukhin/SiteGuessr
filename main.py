@@ -1,5 +1,7 @@
 import os, sys, re
 import requests
+# import itertools
+
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
@@ -10,27 +12,30 @@ def savePage(url, pagepath):
             os.mkdir(pagefolder)
         for res in soup.findAll(tag):  # images, css, etc..
             if tag == 'title':
-                res.string = '{title}'
+                res.string = 'Title'
             elif tag == 'style':
                 try:
                     text = res.string.strip()
                     if 'url' in text:
-                        print(text)
-                        s = re.search(r"url\([^)]*\)", text)
-                        urls = text[s.start() + 4: s.end() - 1]
-                        fileurl = urljoin(url, urls)
-                        filename = urls.split('/')[-1]
-                        filepath = os.path.join(pagefolder, filename)
-                        print(filepath)
-                        print(os.path.isfile(filepath))
-                        res.string = res.string[:s.start() + 5] + './' + str(
-                            os.path.join(os.path.basename(pagefolder), filename)).replace('\\', '/') + res.string[
-                                                                                                       s.end():]
-                        if not os.path.isfile(filepath):  # was not downloaded
-                            with open(filepath, 'wb') as file:
-                                filebin = session.get(fileurl)
-                                file.write(filebin.content)
-                        print(urls)
+                        index = 0
+                        s = re.search("(url\(+)(?!\")([^)]*)", text)
+                        while s:
+                            urls = text[s.start() + 4 + index: s.end() + index]
+                            filename = urls.split('/')[-1]
+                            filepath = os.path.join(pagefolder, filename)
+                            fileurl = urljoin(url, urls)
+                            res.string = res.string[:s.start() + 5 + index] + './' + str(
+                                os.path.join(os.path.basename(pagefolder),
+                                             filename)).replace('\\', '/') + res.string[s.end() + index + 1:]
+                            if not os.path.isfile(filepath):
+                                with open(filepath, 'wb') as f:
+                                    filebin = session.get(fileurl)
+                                    f.write(filebin.content)
+
+                            index += s.end()
+                            s = re.search("(url\(+)(?!\")([^)]*)", text[index:])
+                            # s = re.search(r"url\([^)]*\)", text[index:])
+
                 except Exception as exc:
                     print(exc, file=sys.stderr)
 
@@ -58,13 +63,24 @@ def savePage(url, pagepath):
     # ... whatever other requests config you need here
     response = session.get(url)
     soup = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
-    tags_inner = {'img': 'src', 'link': 'href', 'script': 'src', 'style': '', 'title': ''}  # tag&inner tags to grab
+    tags_inner = {'img': 'src', 'link': 'href', 'script': 'src', 'style': '', 'title': ''}
     for tag, inner in tags_inner.items():  # saves resource files and rename refs
         savenRename(soup, pagefolder, session, url, tag, inner)
+    # titles = map(''.join, itertools.product(*zip(pagepath.upper(), pagepath.lower())))
+    # tags = ['div', 'a', 'p', 'span', 'em']
+    # for res in soup.find_all(tags):
+    #     for title in titles:
+    #         if title in res.text:
+    #             res.string = res.text.replace(title, '*Title*')
     with open(path + '.html', 'wb') as file:  # saves modified html doc
         file.write(soup.prettify('utf-8'))
+
     with open(path + '.html', 'a') as file:
         file.write('<style>a {pointer-events: none;} button {pointer-events: none;}</style>\n ')
 
 
+savePage('https://www.yahoo.com/', 'yahoo')
+savePage('https://www.wikipedia.org/', 'wiki')
+savePage('https://www.reddit.com/', 'reddit')
 savePage('https://github.com/', 'github')
+savePage('https://dzen.ru/', 'dzen')
