@@ -1,6 +1,6 @@
 import datetime
 
-from flask import Flask, render_template, abort, redirect, make_response, jsonify, request
+from flask import Flask, render_template, abort, redirect, make_response, jsonify, request, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import Api
 
@@ -10,6 +10,7 @@ from data.users import User
 from data.statistics import Statistic
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
+from sqlalchemy import desc
 
 app = Flask(__name__)
 api = Api(app)
@@ -22,7 +23,11 @@ login_manager.init_app(app)
 def index():
     db_sess = db_session.create_session()
     params = {"title": "Лучшие игроки",
-              "users": [user for user in db_sess.query(User).all()]}
+              "users": [user for user in
+                        db_sess.query(User).join(Statistic).filter(User.banned == 0).order_by(
+                            desc(Statistic.average_score)).limit(10).all()]}
+    for i in params['users']:
+        print(i.statistic.total_games)
     return render_template("index.html", **params)
 
 
@@ -88,19 +93,44 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
+@app.route('/banned/<int:user_id>', methods=['GET'])
+def banned_user(user_id):
+    if current_user.role != 'main admin':
+        redirect("/")
+    if current_user.id == user_id:
+        return redirect(f"/profile/{current_user.login}")
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(user_id)
+    user.banned = True
+    db_sess.commit()
+    return redirect(f"/profile/{user.login}")
+
+
+@app.route('/unbanned/<int:user_id>', methods=['GET'])
+def unbanned_user(user_id):
+    if current_user.role != 'main admin':
+        redirect("/")
+    if current_user.id == user_id:
+        return redirect(f"/profile/{current_user.login}")
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(user_id)
+    user.banned = False
+    db_sess.commit()
+    return redirect(f"/profile/{user.login}")
+
+
 @app.route('/profile/<user_login>', methods=['GET', 'POST'])
 def profile(user_login):
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.login == user_login).first()
     params = {"title": "Профиль",
               "user": user}
-    print(user.statistic.total_games)
     return render_template('profile.html', **params)
 
 
 @app.route('/user/<user_login>', methods=['GET', 'POST'])
 def edit_user(user_login):
-    if not (current_user.is_authenticated or current_user.roles == "main admin"):
+    if not (current_user.is_authenticated or current_user.role == "main admin"):
         return redirect("/")
     form = RegisterForm()
     params = {"title": "Изменения профиля",
@@ -150,7 +180,7 @@ def main():
     api.add_resource(statistic_resource.StatisticListResource, '/api/statistic')
     api.add_resource(statistic_resource.StatisticResource, '/api/statistic/<int:game_id>')
 
-    app.run(port=8081, host='127.0.0.1')
+    app.run(port=8082, host='127.0.0.1')
 
 
 @app.errorhandler(404)
