@@ -3,7 +3,7 @@
 {% block content %}
 <div class="main-body">
     <h1 class="text-center">Лучшие игроки</h1>
-    {% if current_user.roles == "admin" %}
+    {% if current_user.role == "admin" or current_user.role == "main admin": %}
     <div class="container">
         <a href="job" class="btn btn-secondary">Добавить игру</a>
     </div>
