@@ -21,7 +21,7 @@ login_manager.init_app(app)
 @app.route("/")
 def index():
     db_sess = db_session.create_session()
-    params = {"title": "Top players",
+    params = {"title": "Лучшие игроки",
               "users": [user for user in db_sess.query(User).all()]}
     return render_template("index.html", **params)
 
@@ -31,7 +31,7 @@ def login():
     if current_user.is_authenticated:
         return redirect("/")
     form = LoginForm()
-    params = {"title": "Authorization",
+    params = {"title": "Авторизация",
               "form": form,
               }
     if form.validate_on_submit():
@@ -40,9 +40,9 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
-        params["message"] = "Incorrect login or password"
+        params["message"] = "Неверный логин или пароль"
         return render_template('login.html', **params)
-    return render_template('login.html', title='Authorization', form=form)
+    return render_template('login.html', **params)
 
 
 @app.route('/logout')
@@ -57,7 +57,7 @@ def register():
     if current_user.is_authenticated:
         return redirect("/")
     form = RegisterForm()
-    params = {"title": "Registration",
+    params = {"title": "Регистрация",
               "form": form,
               }
     if form.validate_on_submit():
@@ -92,7 +92,7 @@ def load_user(user_id):
 def profile(user_login):
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.login == user_login).first()
-    params = {"title": "Profile",
+    params = {"title": "Профиль",
               "user": user}
     print(user.statistic.total_games)
     return render_template('profile.html', **params)
@@ -103,7 +103,7 @@ def edit_user(user_login):
     if not (current_user.is_authenticated or current_user.roles == "main admin"):
         return redirect("/")
     form = RegisterForm()
-    params = {"title": "Registration",
+    params = {"title": "Изменения профиля",
               "form": form}
     if request.method == "GET":
         db_sess = db_session.create_session()
@@ -150,7 +150,7 @@ def main():
     api.add_resource(statistic_resource.StatisticListResource, '/api/statistic')
     api.add_resource(statistic_resource.StatisticResource, '/api/statistic/<int:game_id>')
 
-    app.run(port=8080, host='127.0.0.1')
+    app.run(port=8081, host='127.0.0.1')
 
 
 @app.errorhandler(404)

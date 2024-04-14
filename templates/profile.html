@@ -9,27 +9,27 @@
                 <div class="card-body">
                     <h4 class="d-flex align-items-center mb-3"> Информация о профиле </h4>
                     <div class="row">
-                        <div class="col-sm-3"><h6 class="mb-0"> Login </h6></div>
+                        <div class="col-sm-3"><h6 class="mb-0"> Логин </h6></div>
                         <div class="col-sm-9 text-secondary"> {{ user.login }}</div>
                     </div>
                     <hr>
                     {% if user.description: %}
                     <div class="row">
-                        <div class="col-sm-3"><h6 class="mb-0"> Description </h6></div>
+                        <div class="col-sm-3"><h6 class="mb-0"> Описание </h6></div>
                         <div class="col-sm-9 text-secondary"> {{ user.description }}</div>
                     </div>
                     <hr>
                     {% endif %}
                     <div class="row">
-                        <div class="col-sm-3"><h6 class="mb-0"> Roles </h6></div>
+                        <div class="col-sm-3"><h6 class="mb-0"> Роль </h6></div>
                         <div class="col-sm-9 text-secondary"> {{ user.roles }}</div>
                     </div>
                     <hr>
                     <div class="row">
-                        <div class="col-sm-3"><h6 class="mb-0"> Created_date </h6></div>
+                        <div class="col-sm-3"><h6 class="mb-0"> Дата создания </h6></div>
                         <div class="col-sm-9 text-secondary"> {{ user.created_date }}</div>
                     </div>
-                    {% if current_user.login == user.login %}
+                    {% if current_user.login == user.login or  current_user.roles == "main admin" %}
                     <hr>
                     <div class="row">
                         <div class="col-sm-12 float-right d-flex justify-content-end">
@@ -45,22 +45,22 @@
                     <hr>
                     <div class="row">
                         <div class="col-sm-5"><h6 class="mb-0">Количество сыгранных игр</h6></div>
-                        <div class="col-sm-4 text-secondary"> {{ current_user.statistic.correct_answers }}</div>
+                        <div class="col-sm-4 text-secondary"> {{ user.statistic.correct_answers }}</div>
                     </div>
                     <hr>
                     <div class="row">
                         <div class="col-sm-5"><h6 class="mb-0">Количество правильных ответов</h6></div>
-                        <div class="col-sm-4 text-secondary"> {{ current_user.statistic.wrong_answers }}</div>
+                        <div class="col-sm-4 text-secondary"> {{ user.statistic.wrong_answers }}</div>
                     </div>
                     <hr>
                     <div class="row">
                         <div class="col-sm-5"><h6 class="mb-0">Средний балл за игру</h6></div>
-                        <div class="col-sm-4 text-secondary"> {{ current_user.statistic.average_score }}</div>
+                        <div class="col-sm-4 text-secondary"> {{ user.statistic.average_score }}</div>
                     </div>
                     <hr>
                     <div class="row">
                         <div class="col-sm-5"><h6 class="mb-0">Лучший счёт</h6></div>
-                        <div class="col-sm-4 text-secondary"> {{ current_user.statistic.best_score }}</div>
+                        <div class="col-sm-4 text-secondary"> {{ user.statistic.best_score }}</div>
                     </div>
                 </div>
             </div>
