@@ -2,33 +2,38 @@
 
 {% block content %}
 <div class="main-body">
-    <h1>Authorization</h1>
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.login.label }}<br>
-            {{ form.login(class="form-control") }}<br>
-            {% for error in form.login.errors %}
+    <h1 class="d-flex justify-content-center">Авторизация</h1>
+    <div class="d-flex justify-content-center">
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-outline mb-4">
+                {{ form.login.label}}<br>
+                {{ form.login(class="form-control") }}
+                {% for error in form.login.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(class="form-control", type="password") }}<br>
-            {% for error in form.password.errors %}
+                {% endfor %}
+            </div>
+            <div class="form-outline mb-4">
+                {{ form.password.label }}<br>
+                {{ form.password(class="form-control", type="password") }}
+                {% for error in form.password.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>
-            {% endfor %}
-        </p>
-        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-        <div>{{ message }}</div>
-    </form>
-    <div class="dropdown-divider"></div>
-    <a class="dropdown-item" href="/register">Впервые здесь? Зарегистрироваться</a>
+                {% endfor %}
+            </div>
+            <div>{{ form.remember_me() }} {{ form.remember_me.label }}</div>
+            <div class="d-grid gap-2 mb-4">
+                {{ form.submit(type="submit", class="btn btn-primary") }}
+            </div>
+            <div>{{ message }}</div>
+            <a class="dropdown-item d-flex justify-content-center" href="/register">Впервые здесь?
+                Зарегистрироваться</a>
+        </form>
+    </div>
+
 </div>
 
 {% endblock %}
