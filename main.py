@@ -1,13 +1,13 @@
 import datetime
 
-from flask import Flask, render_template, abort, redirect, make_response, jsonify
+from flask import Flask, render_template, abort, redirect, make_response, jsonify, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import Api
 
 from data import db_session
 from data import user_resource, website_resource, game_resources, statistic_resource
 from data.users import User
-from data.statistic import Statistic
+from data.statistics import Statistic
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
 
@@ -23,7 +23,6 @@ def index():
     db_sess = db_session.create_session()
     params = {"title": "Top players",
               "users": [user for user in db_sess.query(User).all()]}
-    print(params["users"])
     return render_template("index.html", **params)
 
 
@@ -32,15 +31,17 @@ def login():
     if current_user.is_authenticated:
         return redirect("/")
     form = LoginForm()
+    params = {"title": "Authorization",
+              "form": form,
+              }
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.login == form.login.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
-        return render_template('login.html',
-                               message="Incorrect login or password",
-                               form=form)
+        params["message"] = "Incorrect login or password"
+        return render_template('login.html', **params)
     return render_template('login.html', title='Authorization', form=form)
 
 
@@ -61,21 +62,22 @@ def register():
               }
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            params["message"] = "Password mismatch"
+            params["message"] = "Пароли не совпадают"
             return render_template('register.html', **params)
-        session = db_session.create_session()
+        db_sess = db_session.create_session()
         user = User()
-        if session.query(User).filter(User.login == form.login.data).first():
-            return jsonify({'message': "There is already such a user"})
+        if db_sess.query(User).filter(User.login == form.login.data).first():
+            params["message"] = "Уже есть такой пользователь"
+            return render_template('register.html', **params)
         user.login = form.login.data
         user.description = form.description.data
         user.modified_date = datetime.datetime.now()
         user.created_date = datetime.datetime.now()
         user.set_password(form.password.data)
-        session.add(user)
-        statistic = Statistic()
+        db_sess.add(user)
+        statistic = Statistic(user_id=user.id)
         user.statistic = statistic
-        session.commit()
+        db_sess.commit()
         return redirect('/login')
     return render_template('register.html', **params)
 
@@ -86,13 +88,51 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
-@app.route('/profile', methods=['GET', 'POST'])
-def profile():
-    if not current_user.is_authenticated:
-        return redirect("/")
-    params = {"title": "Registration",
-              "statistic": current_user.statistic}
+@app.route('/profile/<user_login>', methods=['GET', 'POST'])
+def profile(user_login):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.login == user_login).first()
+    params = {"title": "Profile",
+              "user": user}
+    print(user.statistic.total_games)
     return render_template('profile.html', **params)
+
+
+@app.route('/user/<user_login>', methods=['GET', 'POST'])
+def edit_user(user_login):
+    if not (current_user.is_authenticated or current_user.roles == "main admin"):
+        return redirect("/")
+    form = RegisterForm()
+    params = {"title": "Registration",
+              "form": form}
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.login == user_login).first()
+        if user:
+            form.login.data = user.login
+            form.description.data = user.description
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            params["message"] = "Пароли не совпадают"
+            return render_template('register.html', **params)
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.login == user_login).first()
+        if user:
+            if str(user.login) != str(form.login.data) and db_sess.query(User).filter(
+                    User.login == form.login.data).first():
+                params["message"] = "Уже есть такой пользователь"
+                return render_template('register.html', **params)
+            user.login = form.login.data
+            user.description = form.description.data
+            user.modified_date = datetime.datetime.now()
+            user.set_password(form.password.data)
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('register.html', **params)
 
 
 def main():

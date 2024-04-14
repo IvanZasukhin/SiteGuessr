@@ -14,7 +14,8 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
                            primary_key=True, autoincrement=True)
     login = sqlalchemy.Column(sqlalchemy.String, unique=True, nullable=True)
     description = sqlalchemy.Column(sqlalchemy.String)  # описание
-    roles = sqlalchemy.Column(sqlalchemy.String, default="newbie")
+    roles = sqlalchemy.Column(sqlalchemy.String, nullable=True, default="newbie")  # роль
+    banned = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True, default=False)  # бан
     created_date = sqlalchemy.Column(sqlalchemy.DateTime)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime)
 

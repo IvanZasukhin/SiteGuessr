@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="basis">
+<div class="main-body">
     <h1>Register Form</h1>
     <form action="" method="post">
         {{ form.hidden_tag() }}
@@ -9,7 +9,6 @@
             {{ form.login.label }}<br>
             {{ form.login(class="form-control") }}
             {% if form.login.errors %}
-                <br>
                 {% for login in form.login.errors %}
                     <p class="alert alert-danger" role="alert">
                         {{ error }}
@@ -21,7 +20,6 @@
             {{ form.password.label }}<br>
             {{ form.password(class="form-control", type="password") }}<br>
             {% if form.password.errors %}
-                <br>
                 {% for error in form.password.errors %}
                     <p class="alert alert-danger" role="alert">
                         {{ error }}
@@ -33,7 +31,6 @@
             {{ form.password_again.label }}<br>
             {{ form.password_again(class="form-control", type="password") }}<br>
             {% if form.password_again.errors %}
-                <br>
                 {% for error in form.password_again.errors %}
                     <p class="alert alert-danger" role="alert">
                         {{ error }}
@@ -45,7 +42,6 @@
             {{ form.description.label }}<br>
             {{ form.description(class="form-control") }}<br>
             {% if form.description.errors %}
-                <br>
                 {% for error in form.description.errors %}
                     <p class="alert alert-danger" role="alert">
                         {{ error }}

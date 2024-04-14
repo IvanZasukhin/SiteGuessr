@@ -4,7 +4,7 @@ from flask import abort, jsonify
 from flask_restful import Resource
 
 from . import db_session
-from .statistic import Statistic
+from .statistics import Statistic
 from .statistic_parser import *
 
 
