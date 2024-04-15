@@ -1,6 +1,6 @@
 import os, sys, re
 import requests
-# import itertools
+import itertools
 
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
@@ -66,12 +66,26 @@ def savePage(url, pagepath):
     tags_inner = {'img': 'src', 'link': 'href', 'script': 'src', 'style': '', 'title': ''}
     for tag, inner in tags_inner.items():  # saves resource files and rename refs
         savenRename(soup, pagefolder, session, url, tag, inner)
-    # titles = map(''.join, itertools.product(*zip(pagepath.upper(), pagepath.lower())))
-    # tags = ['div', 'a', 'p', 'span', 'em']
-    # for res in soup.find_all(tags):
-    #     for title in titles:
-    #         if title in res.text:
-    #             res.string = res.text.replace(title, '*Title*')
+
+    titles = list(map(''.join, itertools.product(*zip(pagepath.upper(), pagepath.lower()))))
+    for res in soup.find_all():
+        text = res.text
+        for title in titles:
+            if title in text:
+                text = text.replace(title, '*Title*')
+        if res.string:
+            res.string.replace_with(text)
+        else:
+            for sub_el in res.contents:
+                if isinstance(sub_el, str):
+                    for title in titles:
+                        if title in sub_el:
+                            sub_el_text = sub_el.replace(title, '*Title*')
+                            sub_el.replace_with(sub_el_text)
+
+    for res in soup.findAll('header'):
+        pass
+
     with open(path + '.html', 'wb') as file:  # saves modified html doc
         file.write(soup.prettify('utf-8'))
 
@@ -83,4 +97,4 @@ savePage('https://www.yahoo.com/', 'yahoo')
 savePage('https://www.wikipedia.org/', 'wiki')
 savePage('https://www.reddit.com/', 'reddit')
 savePage('https://github.com/', 'github')
-savePage('https://dzen.ru/', 'dzen')
+savePage('https://discord.com/', 'discord')
