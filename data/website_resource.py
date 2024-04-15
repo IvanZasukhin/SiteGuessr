@@ -11,8 +11,8 @@ class WebsiteResource(Resource):
         abort_if_websites_not_found(website_id)
         session = db_session.create_session()
         websites = session.query(Website).get(website_id)
-        return jsonify({'websites': websites.to_dict(
-            only=("id", "name", "url", "link_file", "user_id"))})
+        return jsonify({'websites.html': websites.to_dict(
+            only=("id", "name", "url", "user_id"))})
 
     def delete(self, website_id):
         abort_if_websites_not_found(website_id)
@@ -29,7 +29,6 @@ class WebsiteResource(Resource):
         websites = session.query(Website).get(website_id)
         websites.name = args['name']
         websites.url = args['url']
-        websites.link_file = args['link_file']
         websites.user_id = args['user_id']
         session.commit()
         return jsonify({'success': 'OK'})
@@ -39,9 +38,9 @@ class WebsiteListResource(Resource):
     def get(self):
         session = db_session.create_session()
         websites = session.query(Website).all()
-        return jsonify({'websites': [
+        return jsonify({'websites.html': [
             item.to_dict(
-                only=("id", "name", "url", "link_file", "user_id")) for
+                only=("id", "name", "url", "user_id")) for
             item in websites]})
 
     def post(self):
@@ -50,7 +49,6 @@ class WebsiteListResource(Resource):
         websites = Website()
         websites.name = args['name']
         websites.url = args['url']
-        websites.link_file = args['link_file']
         websites.user_id = args['user_id']
         session.add(websites)
         session.commit()

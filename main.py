@@ -8,8 +8,10 @@ from data import db_session
 from data import user_resource, website_resource, game_resources, statistic_resource
 from data.users import User
 from data.statistics import Statistic
+from data.websites import Website
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
+from forms.user_edit_profile import EditProfile
 from sqlalchemy import desc
 
 app = Flask(__name__)
@@ -25,9 +27,7 @@ def index():
     params = {"title": "Лучшие игроки",
               "users": [user for user in
                         db_sess.query(User).join(Statistic).filter(User.banned == 0).order_by(
-                            desc(Statistic.average_score)).limit(10).all()]}
-    for i in params['users']:
-        print(i.statistic.total_games)
+                            desc(Statistic.correct_answers), desc(User.login)).limit(10).all()]}
     return render_template("index.html", **params)
 
 
@@ -120,6 +120,7 @@ def unbanned_user(user_id):
 
 
 @app.route('/profile/<user_login>', methods=['GET', 'POST'])
+@login_required
 def profile(user_login):
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.login == user_login).first()
@@ -129,40 +130,65 @@ def profile(user_login):
 
 
 @app.route('/user/<user_login>', methods=['GET', 'POST'])
+@login_required
 def edit_user(user_login):
     if not (current_user.is_authenticated or current_user.role == "main admin"):
         return redirect("/")
-    form = RegisterForm()
+    form = EditProfile()
     params = {"title": "Изменения профиля",
               "form": form}
     if request.method == "GET":
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.login == user_login).first()
+        params["user"] = user
         if user:
             form.login.data = user.login
             form.description.data = user.description
+            form.role.data = user.role
+            form.total_games.data = user.statistic.total_games
+            form.correct_answers.data = user.statistic.correct_answers
+            form.wrong_answers.data = user.statistic.wrong_answers
+            form.average_score.data = user.statistic.average_score
+            form.best_score.data = user.statistic.best_score
         else:
             abort(404)
     if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
-            params["message"] = "Пароли не совпадают"
-            return render_template('register.html', **params)
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.login == user_login).first()
+        params["user"] = user
         if user:
             if str(user.login) != str(form.login.data) and db_sess.query(User).filter(
                     User.login == form.login.data).first():
-                params["message"] = "Уже есть такой пользователь"
-                return render_template('register.html', **params)
+                params["message"] = "Такое имя пользователя занято"
+                return render_template('edit_profile.html', **params)
             user.login = form.login.data
             user.description = form.description.data
             user.modified_date = datetime.datetime.now()
-            user.set_password(form.password.data)
+            if form.role.data:
+                user.role = form.role.data
+            user.statistic.total_games = form.total_games.data
+            user.statistic.correct_answers = form.correct_answers.data
+            user.statistic.wrong_answers = form.wrong_answers.data
+            user.statistic.average_score = form.average_score.data
+            user.statistic.best_score = form.best_score.data
             db_sess.commit()
             return redirect('/')
         else:
             abort(404)
-    return render_template('register.html', **params)
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.login == user_login).first()
+    params["user"] = user
+    return render_template('edit_profile.html', **params)
+
+
+@app.route('/websites', methods=['GET', 'POST'])
+@login_required
+def websites():
+    db_sess = db_session.create_session()
+    params = {"title": "База сайтов",
+              "websites": [user for user in
+                           db_sess.query(Website).all()]}
+    return render_template("websites.html", **params)
 
 
 def main():
@@ -171,7 +197,7 @@ def main():
     api.add_resource(user_resource.UserListResource, '/api/users')
     api.add_resource(user_resource.UserResource, '/api/user/<int:users_id>')
 
-    api.add_resource(website_resource.WebsiteListResource, '/api/websites')
+    api.add_resource(website_resource.WebsiteListResource, '/api/websites.html')
     api.add_resource(website_resource.WebsiteResource, '/api/website/<int:website_id>')
 
     api.add_resource(game_resources.GameListResource, '/api/games')
@@ -180,7 +206,7 @@ def main():
     api.add_resource(statistic_resource.StatisticListResource, '/api/statistic')
     api.add_resource(statistic_resource.StatisticResource, '/api/statistic/<int:game_id>')
 
-    app.run(port=8082, host='127.0.0.1')
+    app.run(port=8085, host='127.0.0.1')
 
 
 @app.errorhandler(404)

@@ -3,12 +3,6 @@
 {% block content %}
 <div class="main-body">
     <h1 class="text-center">Лучшие игроки</h1>
-    {% if current_user.role == "admin" or current_user.role == "main admin": %}
-    <div class="container">
-        <a href="job" class="btn btn-secondary">Добавить игру</a>
-    </div>
-    <br>
-    {% endif %}
     <div class="container">
         <table class="table">
             <thead>
@@ -24,7 +18,11 @@
             <tbody>
             {% for user in users %}
             <tr class="table-primary">
+                {% if current_user.is_authenticated: %}
                 <td><a class="btn btn-secondary" href="/profile/{{ user.login }}" role="button">{{ user.login }}</a></td>
+                {% else: %}
+                <td>{{ user.login }}</td>
+                {% endif %}
                 <td>{{ user.statistic.total_games }}</td>
                 <td>{{ user.statistic.correct_answers }}</td>
                 <td>{{ user.statistic.wrong_answers }}</td>
