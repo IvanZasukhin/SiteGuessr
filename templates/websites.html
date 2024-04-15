@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main-body">
+    <h1 class="text-center">Сайты</h1>
+    {% if current_user.role == "admin" or current_user.role == "main admin": %}
+    <div class="container">
+        <a href="/add_website" class="btn btn-secondary">Добавить сайт</a>
+    </div>
+    <br>
+    {% endif %}
+    <div class="container">
+        <table class="table">
+            <thead>
+            <tr class="table-secondary">
+                <th class="col-2" scope="col">id</th>
+                <th class="col-2" scope="col">Имя сайта</th>
+                <th class="col-6" scope="col">url</th>
+                <th class="col-3" scope="col">Создатель</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for website in websites %}
+            <a href="#">
+                <tr class="table-primary">
+                    <td>{{ website.id }}</td>
+                    <td>{{ website.name }}</td>
+                    <td>{{ website.url }}</td>
+                    {% if current_user.is_authenticated: %}
+                    <td>
+                        <a class="btn btn-secondary" href="/profile/{{ website.user.login }}" role="button">
+                            {{ website.user.login}}
+                        </a>
+                    </td>
+                    {% else: %}
+                    <td>{{ website.user.login }}</td>
+                    {% endif %}
+                </tr>
+            </a>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

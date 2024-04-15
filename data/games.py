@@ -10,7 +10,7 @@ class Game(SqlAlchemyBase, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"), nullable=True)
-    website_id = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    websites_id = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     scores = sqlalchemy.Column(sqlalchemy.Integer)
     finish_date = sqlalchemy.Column(sqlalchemy.DateTime)
 
