@@ -37,6 +37,7 @@ def savePage(url, pagepath):
                             # s = re.search(r"url\([^)]*\)", text[index:])
 
                 except Exception as exc:
+                    res.string = text
                     print(exc, file=sys.stderr)
 
             elif res.has_attr(inner):  # check inner tag (file object) MUST exists
@@ -57,6 +58,21 @@ def savePage(url, pagepath):
                 except Exception as exc:
                     print(exc, file=sys.stderr)
 
+    def delete_logo(soup):
+        for res in soup.findAll():
+            if res.attrs:
+                for attr in res.attrs:
+                    if 'logo' in attr:
+                        res.string = ''
+                        break
+                    elif res.has_attr('class'):
+                        for cl in res.attrs['class']:
+                            if 'logo' in cl:
+                                res.string = ''
+                                break
+
+
+
     path, _ = os.path.splitext(pagepath)
     pagefolder = path + '_files'
     session = requests.Session()
@@ -69,22 +85,19 @@ def savePage(url, pagepath):
 
     titles = list(map(''.join, itertools.product(*zip(pagepath.upper(), pagepath.lower()))))
     for res in soup.find_all():
-        text = res.text
-        for title in titles:
-            if title in text:
-                text = text.replace(title, '*Title*')
-        if res.string:
+        if res.text and res.string:
+            text = res.string
+            for title in titles:
+                if title in text:
+                    text = text.replace(title, '*Title*')
             res.string.replace_with(text)
-        else:
-            for sub_el in res.contents:
-                if isinstance(sub_el, str):
-                    for title in titles:
-                        if title in sub_el:
-                            sub_el_text = sub_el.replace(title, '*Title*')
-                            sub_el.replace_with(sub_el_text)
 
-    for res in soup.findAll('header'):
-        pass
+    header = soup.find('header')
+    if header:
+        delete_logo(header)
+    footer = soup.find('footer')
+    if footer:
+        delete_logo(footer)
 
     with open(path + '.html', 'wb') as file:  # saves modified html doc
         file.write(soup.prettify('utf-8'))
