@@ -11,7 +11,9 @@ from data.statistics import Statistic
 from data.websites import Website
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
-from forms.user_edit_profile import EditProfile
+from forms.user_edit_profile import EditProfileForm
+from forms.website_register import WebsiteRegisterForm
+from forms.user_change_password import ChangePasswordForm
 from sqlalchemy import desc
 
 app = Flask(__name__)
@@ -107,13 +109,13 @@ def banned_user(user_id):
 
 
 @app.route('/unbanned/<int:user_id>', methods=['GET'])
-def unbanned_user(user_id):
+def unbanned_user(user_login):
     if current_user.role != 'main admin':
         redirect("/")
-    if current_user.id == user_id:
+    if current_user.login == user_login:
         return redirect(f"/profile/{current_user.login}")
     db_sess = db_session.create_session()
-    user = db_sess.query(User).get(user_id)
+    user = db_sess.query(User).filter(User.login == user_login).first()
     user.banned = False
     db_sess.commit()
     return redirect(f"/profile/{user.login}")
@@ -132,9 +134,9 @@ def profile(user_login):
 @app.route('/user/<user_login>', methods=['GET', 'POST'])
 @login_required
 def edit_user(user_login):
-    if not (current_user.is_authenticated or current_user.role == "main admin"):
+    if not (current_user.login == user_login or current_user.role == "main admin"):
         return redirect("/")
-    form = EditProfile()
+    form = EditProfileForm()
     params = {"title": "Изменения профиля",
               "form": form}
     if request.method == "GET":
@@ -172,7 +174,7 @@ def edit_user(user_login):
             user.statistic.average_score = form.average_score.data
             user.statistic.best_score = form.best_score.data
             db_sess.commit()
-            return redirect('/')
+            return redirect(f'/profile/{user_login}')
         else:
             abort(404)
     db_sess = db_session.create_session()
@@ -184,11 +186,81 @@ def edit_user(user_login):
 @app.route('/websites', methods=['GET', 'POST'])
 @login_required
 def websites():
+    if not (current_user.role == 'admin' or current_user.role == 'main admin'):
+        return redirect("/")
     db_sess = db_session.create_session()
     params = {"title": "База сайтов",
               "websites": [user for user in
                            db_sess.query(Website).all()]}
     return render_template("websites.html", **params)
+
+
+@app.route('/change_password/<user_login>', methods=['GET', 'POST'])
+@login_required
+def change_password(user_login):
+    if not current_user.login == user_login:
+        return redirect("/")
+    form = ChangePasswordForm()
+    params = {"title": "Регистрация",
+              "form": form,
+              }
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            params["message"] = "Пароли не совпадают"
+            return render_template('change_password.html', **params)
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.login == user_login).first()
+        if not user.check_password(form.old_password.data):
+            params["message"] = "Был введён неверный пароль"
+            return render_template('register.html', **params)
+        user.set_password(form.password.data)
+        db_sess.commit()
+        return redirect(f'/profile/{user_login}')
+    return render_template('change_password.html', **params)
+
+
+@app.route('/user', methods=['GET', 'POST'])
+@login_required
+def all_users():
+    if not current_user.role == "main admin":
+        return redirect("/")
+    db_sess = db_session.create_session()
+    params = {"title": "Все пользователи",
+              "users": [user for user in
+                        db_sess.query(User).order_by(
+                            desc(User.login), desc(User.login)).all()]}
+    return render_template("all_users.html", **params)
+
+
+@app.route('/website', methods=['GET', 'POST'])
+@login_required
+def website_register():
+    if not (current_user.role == "admin" or current_user.role == "main admin"):
+        return redirect("/")
+    form = WebsiteRegisterForm()
+    params = {"title": "Добавление Веб-сайта",
+              "form": form,
+              }
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        website = Website()
+        if db_sess.query(Website).filter(Website.name == form.name.data, Website.url == form.url.data).first():
+            params["message"] = "Уже есть такой сайт"
+            return render_template('website.html', **params)
+        website.name = form.name.data
+        website.url = form.url.data
+        website.user_id = current_user.id
+        db_sess.add(website)
+        db_sess.commit()
+        return redirect('/websites')
+    return render_template("website.html", **params)
+
+
+@app.route('/website/<int:website_id>', methods=['GET', 'POST'])
+@login_required
+def website_edit(website_id):
+    if not (current_user.role == "admin" or current_user.role == "main admin"):
+        return redirect("/")
 
 
 def main():
@@ -206,7 +278,7 @@ def main():
     api.add_resource(statistic_resource.StatisticListResource, '/api/statistic')
     api.add_resource(statistic_resource.StatisticResource, '/api/statistic/<int:game_id>')
 
-    app.run(port=8085, host='127.0.0.1')
+    app.run(port=8087, host='127.0.0.1')
 
 
 @app.errorhandler(404)

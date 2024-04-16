@@ -6,38 +6,34 @@
     <div class="d-flex justify-content-center">
         <form action="" method="post" class="form">
             {{ form.hidden_tag() }}
-            <div class="form-outline mb-4">
-                {{ form.login.label}}<br>
-                {{ form.login(class="form-control") }}
-                {% if form.login.errors %}
-                {% for error in form.login.errors %}
+            <div>
+                {{ form.name.label }}<br>
+                {{ form.name(class="form-control") }}
+                {% if form.name.errors %}
+                {% for name in form.name.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>
                 {% endfor %}
                 {% endif %}
             </div>
-            <div class="form-outline mb-4">
-                {{ form.password.label }}<br>
-                {{ form.password(class="form-control", type="password") }}
-                {% if form.password.errors %}
-                {% for error in form.password.errors %}
+            <div>
+                {{ form.url.label }}<br>
+                {{ form.url(class="form-control") }}<br>
+                {% if form.url.errors %}
+                {% for error in form.url.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>
                 {% endfor %}
                 {% endif %}
             </div>
-            <div>{{ form.remember_me() }} {{ form.remember_me.label }}</div>
             <div class="d-grid gap-2 mb-4">
                 {{ form.submit(type="submit", class="btn btn-primary") }}
-                {{ message }}
+                {{message}}
             </div>
-            <a class="dropdown-item d-flex justify-content-center p-2" href="/register">Впервые здесь?
-                Зарегистрироваться</a>
+
         </form>
     </div>
-
 </div>
-
 {% endblock %}
