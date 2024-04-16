@@ -16,11 +16,13 @@
                                 <div class="col-sm-9 text-secondary">
                                     {{ form.login(class="col-sm-9 text-secondary") }}
                                 </div>
+                                {% if form.login.errors %}
                                 {% for error in form.login.errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}
                                 </div>
                                 {% endfor %}
+                                {% endif %}
                             </div>
                             <hr>
                             <div class="row">
@@ -28,11 +30,13 @@
                                 <div class="col-sm-9 text-secondary">
                                     {{ form.description(class="col-sm-9 text-secondary")}}
                                 </div>
+                                {% if form.description.errors %}
                                 {% for error in form.description.errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}
                                 </div>
                                 {% endfor %}
+                                {% endif %}
                             </div>
                             <hr>
                             {% if user.role != "main admin" and current_user.role == "main admin": %}
@@ -41,11 +45,13 @@
                                 <div class="col-sm-9 text-secondary">
                                     {{ form.role(class="col-sm-9 text-secondary") }}
                                 </div>
+                                {% if form.role.errors %}
                                 {% for error in form.role.errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}
                                 </div>
                                 {% endfor %}
+                                {% endif %}
                             </div>
                             <hr>
                             {% endif %}
@@ -68,11 +74,13 @@
                                 <div class="col-sm-4 text-secondary">
                                     {{ form.total_games(class="col-sm-9 text-secondary")}}
                                 </div>
+                                {% if form.total_games.errors %}
                                 {% for error in form.total_games.errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}
                                 </div>
                                 {% endfor %}
+                                {% endif %}
                             </div>
                             <hr>
                             <div class="row">
@@ -80,11 +88,13 @@
                                 <div class="col-sm-4 text-secondary">
                                     {{ form.correct_answers(class="col-sm-9 text-secondary") }}
                                 </div>
+                                {% if form.correct_answers.errors %}
                                 {% for error in form.correct_answers.errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}
                                 </div>
                                 {% endfor %}
+                                {% endif %}
                             </div>
                             <hr>
                             <div class="row">
@@ -92,11 +102,13 @@
                                 <div class="col-sm-4 text-secondary">
                                     {{ form.wrong_answers(class="col-sm-9 text-secondary") }}
                                 </div>
+                                {% if form.wrong_answers.errors %}
                                 {% for error in form.wrong_answers.errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}
                                 </div>
                                 {% endfor %}
+                                {% endif %}
                             </div>
                             <hr>
                             <div class="row">
@@ -104,11 +116,13 @@
                                 <div class="col-sm-4 text-secondary">
                                     {{ form.average_score(class="col-sm-9 text-secondary") }}
                                 </div>
+                                {% if form.average_score.errors %}
                                 {% for error in form.average_score.errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}
                                 </div>
                                 {% endfor %}
+                                {% endif %}
                             </div>
                             <hr>
                             <div class="row">
@@ -116,11 +130,13 @@
                                 <div class="col-sm-4 text-secondary">
                                     {{ form.best_score(class="col-sm-9 text-secondary") }}
                                 </div>
+                                {% if form.best_score.errors %}
                                 {% for error in form.best_score.errors %}
                                 <div class="alert alert-danger" role="alert">
                                     {{ error }}
                                 </div>
                                 {% endfor %}
+                                {% endif %}
                             </div>
                         </div>
                     </div>

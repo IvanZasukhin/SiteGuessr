@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main-body">
+    <h1 class="text-center">Лучшие игроки</h1>
+    <div class="container">
+        <table class="table">
+            <thead>
+            <tr class="table-secondary">
+                <th class="col-4" scope="col">Имя пользователя</th>
+                <th class="col-2" scope="col">Всего игр</th>
+                <th class="col-2" scope="col">Средний балл за игру</th>
+                <th class="col-3" scope="col">Блокировка</th>
+                <th class="col-3" scope="col">Роль</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+            <tr class="table-primary">
+                <td><a class="btn btn-primary" href="/profile/{{ user.login }}" role="button">{{ user.login }}</a></td>
+                <td>{{ user.statistic.total_games }}</td>
+                <td>{{ user.statistic.average_score }}</td>
+                <td>
+                    {% if user.banned: %}
+                    <div class="col-sm-9 text-danger">
+                        Заблокирован
+                    </div>
+                    {% else: %}
+                    <div class="col-sm-9 text-success">
+                        Блокировки нет
+                    </div>
+                    {% endif %}
+                </td>
+                <td>{{ user.role }}</td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

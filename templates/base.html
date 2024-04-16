@@ -41,7 +41,9 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/profile/{{ current_user.login }}">Профиль</a></li>
-                        <li><a class="dropdown-item" href="#">Другое действие</a></li>
+                        {% if current_user.role == "main admin" %}
+                        <li><a class="dropdown-item" href="/user">Список всех пользователей</a></li>
+                        {% endif %}
                         <li><a class="dropdown-item" href="/logout">Выйти из профиля</a></li>
                     </ul>
                 </div>

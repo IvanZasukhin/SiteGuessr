@@ -4,7 +4,7 @@ from wtforms import PasswordField, StringField, TextAreaField, SubmitField, Emai
 from wtforms.validators import DataRequired, Email, Length, NumberRange, InputRequired, Optional
 
 
-class EditProfile(FlaskForm):
+class EditProfileForm(FlaskForm):
     login = StringField('Логин', validators=[DataRequired(), Length(min=4, max=45), InputRequired()])
     description = TextAreaField("Описание", validators=[Optional()])
     role = SelectField("Роль", choices=["admin", "main admin", "newbie"], validators=[Optional()])
