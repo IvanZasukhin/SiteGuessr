@@ -5,6 +5,14 @@ import itertools
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
+from forms.answer import AnswerForm
+from flask import Flask, render_template, abort, redirect, make_response, jsonify, request, url_for
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_restful import Api
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'yandex_lyceum_secret_key'
+
 
 def savePage(url, pagepath):
     def savenRename(soup, pagefolder, session, url, tag, inner):
@@ -24,7 +32,7 @@ def savePage(url, pagepath):
                             filename = urls.split('/')[-1]
                             filepath = os.path.join(pagefolder, filename)
                             fileurl = urljoin(url, urls)
-                            res.string = res.string[:s.start() + 5 + index] + './' + str(
+                            res.string = res.string[:s.start() + 5 + index] + '../' + str(
                                 os.path.join(os.path.basename(pagefolder),
                                              filename)).replace('\\', '/') + res.string[s.end() + index + 1:]
                             if not os.path.isfile(filepath):
@@ -49,7 +57,11 @@ def savePage(url, pagepath):
                     fileurl = urljoin(url, res.get(inner))
                     filepath = os.path.join(pagefolder, filename)
                     # rename html ref so can move html and folder of files anywhere
-                    res[inner] = os.path.join(os.path.basename(pagefolder), filename)
+                    res[inner] = '../' + os.path.join(os.path.basename(pagefolder), filename).replace('\\', '/')
+                    if tag == 'img':
+                        if res.has_attr('srcset'):
+                            res.attrs['srcset'] = ''
+
                     if not os.path.isfile(filepath):  # was not downloaded
                         with open(filepath, 'wb') as file:
                             filebin = session.get(fileurl)
@@ -70,8 +82,6 @@ def savePage(url, pagepath):
                             if 'logo' in cl:
                                 res.string = ''
                                 break
-
-
 
     path, _ = os.path.splitext(pagepath)
     pagefolder = path + '_files'
@@ -99,15 +109,29 @@ def savePage(url, pagepath):
     if footer:
         delete_logo(footer)
 
-    with open(path + '.html', 'wb') as file:  # saves modified html doc
+    with open(os.path.join('templates', f'{path}.html'), 'wb') as file:  # saves modified html doc
         file.write(soup.prettify('utf-8'))
 
-    with open(path + '.html', 'a') as file:
-        file.write('<style>a {pointer-events: none;} button {pointer-events: none;}</style>\n ')
+    with open(os.path.join('templates', f'{path}.html'), 'a') as file:
+        file.write('<style>a {pointer-events: none;} button {pointer-events: none;}</style>\n')
+        file.write(
+            '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">\n')
+        file.write(
+            '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>')
+        file.write('{% block content %} {% endblock %}')
 
 
-savePage('https://www.yahoo.com/', 'yahoo')
-savePage('https://www.wikipedia.org/', 'wiki')
-savePage('https://www.reddit.com/', 'reddit')
-savePage('https://github.com/', 'github')
+@app.route("/game", methods=['GET', 'POST'])
+def game():
+    form = AnswerForm()
+    params = {"title": "discord",
+              "form": form}
+    return render_template("answer.html", **params)
+
+
+# savePage('https://www.yahoo.com/', 'yahoo')
+# savePage('https://www.wikipedia.org/', 'wiki')
+# savePage('https://www.reddit.com/', 'reddit')
+# savePage('https://github.com/', 'github')
 savePage('https://discord.com/', 'discord')
+app.run(port=8087, host='127.0.0.1')

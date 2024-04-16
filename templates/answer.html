@@ -1,0 +1,32 @@
+{% set path = title + ".html" %}
+{% extends path %}
+
+{% block content %}
+<style>
+    .answer {
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    padding: 10px;
+    border: 1px solid #333;
+    }
+</style>
+<div class="answer">
+    <form action="" method="post">
+        <div class="form-outline mb-4">
+            {{form.title.label}}<br>
+            {{form.title()}}
+            {% if form.title.errors %}
+                {% for error in form.title.errors %}
+                <div>
+                    {{ error }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="d-grid gap-2 mb-4">
+            {{form.submit()}}
+        </div>
+    </form>
+</div>
+{% endblock %}
