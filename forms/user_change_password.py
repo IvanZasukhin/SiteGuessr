@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, SubmitField, EmailField, BooleanField, StringField
-from wtforms.validators import DataRequired, Length, InputRequired, Email
+from wtforms import PasswordField, SubmitField
+from wtforms.validators import DataRequired, Length, InputRequired
 
 
 class ChangePasswordForm(FlaskForm):

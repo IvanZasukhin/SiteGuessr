@@ -15,31 +15,40 @@
             <tr class="table-secondary">
                 <th class="col-1" scope="col">id</th>
                 <th class="col-3" scope="col">Имя сайта</th>
-                <th class="col-6" scope="col">url</th>
-                <th class="col-3" scope="col">Создатель</th>
+                <th class="col-5" scope="col">url</th>
+                <th class="col-1" scope="col">Создатель</th>
+                <th class="col-1" scope="col">Управление</th>
             </tr>
             </thead>
             <tbody>
             {% for website in websites %}
             <tr class="table-primary">
-                <td>{{ website.id }}</td>
+                <td>{{ loop.index }}</td>
                 <td>{{ website.name }}</td>
                 <td>{{ website.url }}</td>
                 <td>
-                    <div class="d-md-flex d-grid gx-2">
-                        <div class="px-2">
-                            <a class="btn btn-info px-2" href="/profile/{{ website.user.login }}" role="button">
-                                {{ website.user.login}}
-                            </a>
-                        </div>
-                        {% if website.user.login == current_user.login or current_user.role == "main admin" %}
-                        <div>
-                            <a class="btn btn-warning px-2" href="/websites/{{ website.id }}" role="button">
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-info " href="/profile/{{ website.user.login }}"
+                           role="button">
+                            {{ website.user.login}}
+                        </a>
+                    </div>
+                </td>
+                <td>
+                    {% if website.user.login == current_user.login or current_user.role == "main admin" %}
+                    <div class="">
+                        <div class="d-flex">
+                            <a class="btn btn-warning mx-auto d-grid px-1" href="/website/{{ website.id }}"
+                               role="button">
                                 Настройки
                             </a>
-                            {% endif %}
+                            <a class="btn btn-danger mx-auto d-grid px-1" href="/website_delete/{{ website.id }}"
+                               role="button">
+                                Удалить
+                            </a>
                         </div>
                     </div>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

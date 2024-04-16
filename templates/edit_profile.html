@@ -11,6 +11,12 @@
                     <div class="col card">
                         <div class="card-body">
                             <h4 class="d-flex align-items-center mb-3"> Информация о профиле </h4>
+                            {% if current_user.role == "main admin": %}
+                            <div class="row">
+                                <div class="col-sm-3"><h6 class="mb-0"> Логин </h6></div>
+                                <div class="col-sm-9 text-secondary"> {{ user.login }}</div>
+                            </div>
+                            {% else: %}
                             <div class="row">
                                 <div class="col-sm-3"><h6 class="mb-0"> {{ form.login.label }} </h6></div>
                                 <div class="col-sm-9 text-secondary">
@@ -24,6 +30,7 @@
                                 {% endfor %}
                                 {% endif %}
                             </div>
+                            {% endif %}
                             <hr>
                             <div class="row">
                                 <div class="col-sm-3"><h6 class="mb-0"> {{ form.description.label }} </h6></div>

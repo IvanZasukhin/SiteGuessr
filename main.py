@@ -1,20 +1,20 @@
 import datetime
 
-from flask import Flask, render_template, abort, redirect, make_response, jsonify, request, url_for
+from flask import Flask, render_template, abort, redirect, make_response, jsonify, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import Api
+from sqlalchemy import desc
 
 from data import db_session
 from data import user_resource, website_resource, game_resources, statistic_resource
-from data.users import User
 from data.statistics import Statistic
+from data.users import User
 from data.websites import Website
+from forms.user_change_password import ChangePasswordForm
+from forms.user_edit_profile import EditProfileForm
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
-from forms.user_edit_profile import EditProfileForm
 from forms.website_register import WebsiteRegisterForm
-from forms.user_change_password import ChangePasswordForm
-from sqlalchemy import desc
 
 app = Flask(__name__)
 api = Api(app)
@@ -82,7 +82,8 @@ def register():
         user.created_date = datetime.datetime.now()
         user.set_password(form.password.data)
         db_sess.add(user)
-        statistic = Statistic(user_id=user.id)
+        statistic = Statistic()
+        statistic.user_id = user.id
         user.statistic = statistic
         db_sess.commit()
         return redirect('/login')
@@ -159,8 +160,8 @@ def edit_user(user_login):
         user = db_sess.query(User).filter(User.login == user_login).first()
         params["user"] = user
         if user:
-            if str(user.login) != str(form.login.data) and db_sess.query(User).filter(
-                    User.login == form.login.data).first():
+            if (str(user.login) != str(form.login.data) and
+                    db_sess.query(User).filter(User.login == form.login.data).first()):
                 params["message"] = "Такое имя пользователя занято"
                 return render_template('edit_profile.html', **params)
             user.login = form.login.data
@@ -191,7 +192,7 @@ def websites():
     db_sess = db_session.create_session()
     params = {"title": "База сайтов",
               "websites": [user for user in
-                           db_sess.query(Website).all()]}
+                           db_sess.query(Website).join(User).filter(User.banned == 0).all()]}
     return render_template("websites.html", **params)
 
 
@@ -238,13 +239,13 @@ def website_register():
     if not (current_user.role == "admin" or current_user.role == "main admin"):
         return redirect("/")
     form = WebsiteRegisterForm()
-    params = {"title": "Добавление Веб-сайта",
+    params = {"title": "Добавление веб-сайта",
               "form": form,
               }
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         website = Website()
-        if db_sess.query(Website).filter(Website.name == form.name.data, Website.url == form.url.data).first():
+        if db_sess.query(Website).filter((Website.name == form.name.data) | (Website.url == form.url.data)).first():
             params["message"] = "Уже есть такой сайт"
             return render_template('website.html', **params)
         website.name = form.name.data
@@ -261,6 +262,48 @@ def website_register():
 def website_edit(website_id):
     if not (current_user.role == "admin" or current_user.role == "main admin"):
         return redirect("/")
+    form = WebsiteRegisterForm()
+    params = {"title": "Изменения веб-сайта",
+              "form": form}
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        website = db_sess.query(Website).get(website_id)
+        if website:
+            form.name.data = website.name
+            form.url.data = website.url
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        website = db_sess.query(Website).get(website_id)
+        if website:
+            if db_sess.query(Website).filter((Website.name == form.name.data) | (Website.url == form.url.data)).first():
+                params["message"] = "Уже есть такой сайт"
+                return render_template('website.html', **params)
+            website.name = form.name.data
+            website.url = form.url.data
+            db_sess.commit()
+            return redirect(f'/websites')
+        else:
+            abort(404)
+    return render_template('website.html', **params)
+
+
+@app.route('/website_delete/<int:website_id>', methods=['GET', 'POST'])
+@login_required
+def website_delete(website_id):
+    db_sess = db_session.create_session()
+    if current_user.role != 'main admin':
+        website = db_sess.query(Website).get(website_id)
+    else:
+        website = db_sess.query(Website).filter(Website.id == website_id,
+                                                Website.user == current_user).first()
+    if website:
+        db_sess.delete(website)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/websites')
 
 
 def main():
@@ -278,7 +321,7 @@ def main():
     api.add_resource(statistic_resource.StatisticListResource, '/api/statistic')
     api.add_resource(statistic_resource.StatisticResource, '/api/statistic/<int:game_id>')
 
-    app.run(port=8087, host='127.0.0.1')
+    app.run(port=8088, host='127.0.0.1')
 
 
 @app.errorhandler(404)
