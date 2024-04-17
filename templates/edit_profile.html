@@ -11,10 +11,17 @@
                     <div class="col card">
                         <div class="card-body">
                             <h4 class="d-flex align-items-center mb-3"> Информация о профиле </h4>
-                            {% if current_user.role == "main admin": %}
+                            {% if current_user.role == "main admin" and current_user.id != user.id: %}
                             <div class="row">
                                 <div class="col-sm-3"><h6 class="mb-0"> Логин </h6></div>
                                 <div class="col-sm-9 text-secondary"> {{ user.login }}</div>
+                                                                {% if form.login.errors %}
+                                {% for error in form.login.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
                             </div>
                             {% else: %}
                             <div class="row">
@@ -207,5 +214,4 @@
         </form>
     </div>
 </div>
-
 {% endblock %}

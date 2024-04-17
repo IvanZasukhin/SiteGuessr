@@ -98,7 +98,7 @@ def load_user(user_id):
 
 @app.route('/banned/<int:user_id>', methods=['GET'])
 def banned_user(user_id):
-    if current_user.role != 'main admin':
+    if current_user.role != 'main admin' and current_user.banned != 1:
         redirect("/")
     if current_user.id == user_id:
         return redirect(f"/profile/{current_user.login}")
@@ -111,7 +111,7 @@ def banned_user(user_id):
 
 @app.route('/unbanned/<int:user_id>', methods=['GET'])
 def unbanned_user(user_login):
-    if current_user.role != 'main admin':
+    if current_user.role != 'main admin' and current_user.banned != 1:
         redirect("/")
     if current_user.login == user_login:
         return redirect(f"/profile/{current_user.login}")
@@ -135,7 +135,7 @@ def profile(user_login):
 @app.route('/user/<user_login>', methods=['GET', 'POST'])
 @login_required
 def edit_user(user_login):
-    if not (current_user.login == user_login or current_user.role == "main admin"):
+    if not (current_user.login == user_login or (current_user.role == "main admin" and current_user.banned != 1)):
         return redirect("/")
     form = EditProfileForm()
     params = {"title": "Изменения профиля",
@@ -164,7 +164,8 @@ def edit_user(user_login):
                     db_sess.query(User).filter(User.login == form.login.data).first()):
                 params["message"] = "Такое имя пользователя занято"
                 return render_template('edit_profile.html', **params)
-            user.login = form.login.data
+            if form.login.data:
+                user.login = form.login.data
             user.description = form.description.data
             user.modified_date = datetime.datetime.now()
             if form.role.data:
@@ -178,21 +179,22 @@ def edit_user(user_login):
             return redirect(f'/profile/{user_login}')
         else:
             abort(404)
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.login == user_login).first()
-    params["user"] = user
+    else:
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.login == user_login).first()
+        params["user"] = user
     return render_template('edit_profile.html', **params)
 
 
 @app.route('/websites', methods=['GET', 'POST'])
 @login_required
 def websites():
-    if not (current_user.role == 'admin' or current_user.role == 'main admin'):
+    if not (current_user.role == 'admin' or (current_user.role == 'main admin' and current_user.banned != 1)):
         return redirect("/")
     db_sess = db_session.create_session()
     params = {"title": "База сайтов",
               "websites": [user for user in
-                           db_sess.query(Website).join(User).filter(User.banned == 0).all()]}
+                           db_sess.query(Website).join(User).all()]}
     return render_template("websites.html", **params)
 
 
@@ -223,7 +225,7 @@ def change_password(user_login):
 @app.route('/user', methods=['GET', 'POST'])
 @login_required
 def all_users():
-    if not current_user.role == "main admin":
+    if not (current_user.role == "main admin" and current_user.banned != 1):
         return redirect("/")
     db_sess = db_session.create_session()
     params = {"title": "Все пользователи",
@@ -236,7 +238,7 @@ def all_users():
 @app.route('/website', methods=['GET', 'POST'])
 @login_required
 def website_register():
-    if not (current_user.role == "admin" or current_user.role == "main admin"):
+    if not ((current_user.role == "admin" or current_user.role == "main admin") and current_user.banned != 1):
         return redirect("/")
     form = WebsiteRegisterForm()
     params = {"title": "Добавление веб-сайта",
@@ -260,7 +262,7 @@ def website_register():
 @app.route('/website/<int:website_id>', methods=['GET', 'POST'])
 @login_required
 def website_edit(website_id):
-    if not (current_user.role == "admin" or current_user.role == "main admin"):
+    if not ((current_user.role == "admin" or current_user.role == "main admin") and current_user.banned != 1):
         return redirect("/")
     form = WebsiteRegisterForm()
     params = {"title": "Изменения веб-сайта",
@@ -277,9 +279,6 @@ def website_edit(website_id):
         db_sess = db_session.create_session()
         website = db_sess.query(Website).get(website_id)
         if website:
-            if db_sess.query(Website).filter((Website.name == form.name.data) | (Website.url == form.url.data)).first():
-                params["message"] = "Уже есть такой сайт"
-                return render_template('website.html', **params)
             website.name = form.name.data
             website.url = form.url.data
             db_sess.commit()
@@ -293,7 +292,7 @@ def website_edit(website_id):
 @login_required
 def website_delete(website_id):
     db_sess = db_session.create_session()
-    if current_user.role != 'main admin':
+    if current_user.role == 'main admin' and current_user.banned != 1:
         website = db_sess.query(Website).get(website_id)
     else:
         website = db_sess.query(Website).filter(Website.id == website_id,
