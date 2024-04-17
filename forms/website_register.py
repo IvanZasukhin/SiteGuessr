@@ -4,6 +4,8 @@ from wtforms.validators import DataRequired, Length, InputRequired, URL
 
 
 class WebsiteRegisterForm(FlaskForm):
-    name = StringField('Имя сайта', validators=[DataRequired(), Length(min=1, max=25), InputRequired()])
+    name = StringField('Имя сайта',
+                       validators=[DataRequired(message="Это поле обязательно к заполнению."), Length(min=1, max=25),
+                                   InputRequired(message="Это поле обязательно к заполнению.")])
     url = URLField('Url сайта', validators=[DataRequired(), URL(message="Введите действительный URL-адрес.")])
     submit = SubmitField('Отправить')

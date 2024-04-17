@@ -4,9 +4,9 @@
 <div class="main-body">
     <h1 class="text-center">Лучшие игроки</h1>
     <div class="container">
-        <table class="table">
+        <table class="table table-striped-columns table-bordered ">
             <thead>
-            <tr class="table-secondary">
+            <tr class="">
                 <th class="col-4" scope="col">Имя пользователя</th>
                 <th class="col-2" scope="col">Всего игр</th>
                 <th class="col-2" scope="col">Средний балл за игру</th>
@@ -16,7 +16,7 @@
             </thead>
             <tbody>
             {% for user in users %}
-            <tr class="table-primary">
+            <tr class="">
                 <td><a class="btn btn-primary" href="/profile/{{ user.login }}" role="button">{{ user.login }}</a></td>
                 <td>{{ user.statistic.total_games }}</td>
                 <td>{{ user.statistic.average_score }}</td>

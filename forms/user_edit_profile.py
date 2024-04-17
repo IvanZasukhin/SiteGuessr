@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Length, NumberRange, InputRequired,
 
 
 class EditProfileForm(FlaskForm):
-    login = StringField('Логин', validators=[DataRequired(), Length(min=4, max=45), InputRequired()])
+    login = StringField('Логин', validators=[Length(min=4, max=45), Optional()])
     description = TextAreaField("Описание", validators=[
         Optional(), Length(min=0, max=200, message='Описание не может превышать 200 символов')])
     role = SelectField("Роль", choices=["admin", "main admin", "newbie"], validators=[Optional(), ])

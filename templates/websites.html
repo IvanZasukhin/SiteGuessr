@@ -3,16 +3,16 @@
 {% block content %}
 <div class="main-body">
     <h1 class="text-center">{{ title }}</h1>
-    {% if current_user.role == "admin" or current_user.role == "main admin": %}
+    {% if (current_user.role == "admin" or current_user.role == "main admin") and current_user.banned != 1: %}
     <div class="container">
         <a href="/website" class="btn btn-success">Добавить сайт</a>
     </div>
     <br>
     {% endif %}
     <div class="container">
-        <table class="table">
+        <table class="table table-striped-columns table-bordered ">
             <thead>
-            <tr class="table-secondary">
+            <tr class="">
                 <th class="col-1" scope="col">id</th>
                 <th class="col-3" scope="col">Имя сайта</th>
                 <th class="col-5" scope="col">url</th>
@@ -22,20 +22,28 @@
             </thead>
             <tbody>
             {% for website in websites %}
-            <tr class="table-primary">
+            <tr class="-primary">
                 <td>{{ loop.index }}</td>
                 <td>{{ website.name }}</td>
                 <td>{{ website.url }}</td>
                 <td>
                     <div class="d-grid gap-2">
+                        {% if website.user.banned == 0: %}
                         <a class="btn btn-info " href="/profile/{{ website.user.login }}"
                            role="button">
                             {{ website.user.login}}
                         </a>
+                        {% else: %}
+                        <a class="btn btn-danger " href="/profile/{{ website.user.login }}"
+                           role="button">
+                            {{ website.user.login}}
+                        </a>
+                        {% endif %}
                     </div>
                 </td>
                 <td>
-                    {% if website.user.login == current_user.login or current_user.role == "main admin" %}
+                    {% if (website.user.login == current_user.login or current_user.role == "main admin") and
+                    current_user.banned != 1 %}
                     <div class="">
                         <div class="d-flex">
                             <a class="btn btn-warning mx-auto d-grid px-1" href="/website/{{ website.id }}"

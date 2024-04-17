@@ -74,9 +74,11 @@
             <div class="col col-xl-12 p-2">
                 {% if current_user.login == user.login or current_user.role == "main admin" %}
                 <div class="d-flex justify-content-end">
+                    {% if current_user.login == user.login %}
                     <div class="px-2">
                         <a class="btn btn-primary" href="/change_password/{{ user.login }}">Изменить пароль</a>
                     </div>
+                    {% endif %}
                     <div class="">
                         <a class="btn btn-info" href="/user/{{ user.login }}">Редактировать</a>
                     </div>
