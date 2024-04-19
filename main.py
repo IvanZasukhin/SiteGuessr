@@ -110,13 +110,13 @@ def banned_user(user_id):
 
 
 @app.route('/unbanned/<int:user_id>', methods=['GET'])
-def unbanned_user(user_login):
+def unbanned_user(user_id):
     if current_user.role != 'main admin' and current_user.banned != 1:
         redirect("/")
-    if current_user.login == user_login:
+    if current_user.login == user_id:
         return redirect(f"/profile/{current_user.login}")
     db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.login == user_login).first()
+    user = db_sess.query(User).get(user_id)
     user.banned = False
     db_sess.commit()
     return redirect(f"/profile/{user.login}")
