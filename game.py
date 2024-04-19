@@ -6,15 +6,15 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
 from forms.answer import AnswerForm
-from flask import Flask, render_template, abort, redirect, make_response, jsonify, request, url_for
+from flask import Flask, render_template, abort, redirect
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandex_lyceum_secret_key'
 
 
-def savePage(url, pagepath):
-    def savenRename(soup, pagefolder, session, url, tag, inner):
+def save_page(url, pagepath):
+    def save_and_rename(soup, pagefolder, session, url, tag, inner):
         if not os.path.exists(pagefolder):
             os.mkdir(pagefolder)
         for res in soup.findAll(tag):
@@ -45,7 +45,7 @@ def savePage(url, pagepath):
 
                 except Exception as exc:
                     res.string = text
-                    print(exc, file=sys.stderr)
+                    pass
 
             elif res.has_attr(inner):
                 try:
@@ -66,7 +66,7 @@ def savePage(url, pagepath):
                             file.write(filebin.content)
 
                 except Exception as exc:
-                    print(exc, file=sys.stderr)
+                    pass
 
     def try_delete_logo(soup):
         for res in soup.findAll():
@@ -88,7 +88,7 @@ def savePage(url, pagepath):
     soup = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
     tags_inner = {'img': 'src', 'link': 'href', 'script': 'src', 'style': '', 'title': ''}
     for tag, inner in tags_inner.items():  # saves resource files and rename refs
-        savenRename(soup, pagefolder, session, url, tag, inner)
+        save_and_rename(soup, pagefolder, session, url, tag, inner)
 
     titles = list(map(''.join, itertools.product(*zip(pagepath.upper(), pagepath.lower()))))
     for res in soup.find_all():
@@ -120,8 +120,8 @@ def savePage(url, pagepath):
         file.write('{% block content %} {% endblock %}')
 
 
-@app.route("/game/<title>", methods=['GET', 'POST'])
-def game(title):
+@app.route("/game", methods=['GET', 'POST'])
+def game():
     form = AnswerForm()
     params = {"title": title,
               "pagefolder": "discord_files",
@@ -135,9 +135,3 @@ def game(title):
     return render_template("answer.html", **params)
 
 
-# savePage('https://www.yahoo.com/', 'yahoo')
-# savePage('https://www.wikipedia.org/', 'wiki')
-# savePage('https://www.reddit.com/', 'reddit')
-savePage('https://github.com/', 'github')
-savePage('https://discord.com/', 'discord')
-app.run(port=8087, host='127.0.0.1')

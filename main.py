@@ -1,4 +1,5 @@
 import datetime
+from random import choices
 
 from flask import Flask, render_template, abort, redirect, make_response, jsonify, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -15,6 +16,8 @@ from forms.user_edit_profile import EditProfileForm
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
 from forms.website_register import WebsiteRegisterForm
+from forms.answer import AnswerForm
+from game import save_page
 
 app = Flask(__name__)
 api = Api(app)
@@ -303,6 +306,33 @@ def website_delete(website_id):
     else:
         abort(404)
     return redirect('/websites')
+
+
+@app.route("/game", methods=['GET', 'POST'])
+def game():
+    db_sess = db_session.create_session()
+    titles = db_sess.query(Website).all()
+    titles = choices(titles, k=5)
+    for title in titles:
+        save_page(title.url, title.name)
+    title_num = 0
+    title = titles[title_num]
+
+    form = AnswerForm()
+    params = {"title": title.name,
+              "form": form}
+    if form.validate_on_submit():
+        if form.title.data.lower() == title:
+            if title_num != 4:
+                title_num += 1
+                params["title"] = title[title_num]
+            else:
+                title_num = 0
+                return redirect("/")
+        else:
+            params["message"] = "Неверное имя сайта"
+        return render_template('answer.html', **params)
+    return render_template("answer.html", **params)
 
 
 def main():
