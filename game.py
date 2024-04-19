@@ -16,9 +16,9 @@ app.config['SECRET_KEY'] = 'yandex_lyceum_secret_key'
 
 def savePage(url, pagepath):
     def savenRename(soup, pagefolder, session, url, tag, inner):
-        if not os.path.exists(pagefolder):  # create only once
+        if not os.path.exists(pagefolder):
             os.mkdir(pagefolder)
-        for res in soup.findAll(tag):  # images, css, etc..
+        for res in soup.findAll(tag):
             if tag == 'title':
                 res.string = 'Title'
             elif tag == 'style':
@@ -32,9 +32,9 @@ def savePage(url, pagepath):
                             filename = urls.split('/')[-1]
                             filepath = os.path.join(pagefolder, filename)
                             fileurl = urljoin(url, urls)
-                            res.string = res.string[:s.start() + 5 + index] + '../' + str(
-                                os.path.join(os.path.basename(pagefolder),
-                                             filename)).replace('\\', '/') + res.string[s.end() + index + 1:]
+                            res.string = (res.string[:s.start() + 5 + index] + '../' +
+                                          os.path.join(pagefolder, filename).replace('\\', '/') +
+                                          res.string[s.end() + index + 1:])
                             if not os.path.isfile(filepath):
                                 with open(filepath, 'wb') as f:
                                     filebin = session.get(fileurl)
@@ -48,16 +48,15 @@ def savePage(url, pagepath):
                     res.string = text
                     print(exc, file=sys.stderr)
 
-            elif res.has_attr(inner):  # check inner tag (file object) MUST exists
+            elif res.has_attr(inner):
                 try:
-                    filename, ext = os.path.splitext(os.path.basename(res[inner]))  # get name and extension
+                    filename, ext = os.path.splitext(os.path.basename(res[inner]))
                     if '?' in ext:
                         ext = ext[:ext.find('?')]
-                    filename = re.sub('\W+', '', filename) + ext  # clean special chars from name
+                    filename = re.sub('\W+', '', filename) + ext
                     fileurl = urljoin(url, res.get(inner))
                     filepath = os.path.join(pagefolder, filename)
-                    # rename html ref so can move html and folder of files anywhere
-                    res[inner] = '../' + os.path.join(os.path.basename(pagefolder), filename).replace('\\', '/')
+                    res[inner] = '../' + os.path.join(pagefolder, filename).replace('\\', '/')
                     if tag == 'img':
                         if res.has_attr('srcset'):
                             res.attrs['srcset'] = ''
@@ -70,7 +69,7 @@ def savePage(url, pagepath):
                 except Exception as exc:
                     print(exc, file=sys.stderr)
 
-    def delete_logo(soup):
+    def try_delete_logo(soup):
         for res in soup.findAll():
             if res.attrs:
                 for attr in res.attrs:
@@ -84,9 +83,8 @@ def savePage(url, pagepath):
                                 break
 
     path, _ = os.path.splitext(pagepath)
-    pagefolder = path + '_files'
+    pagefolder = 'static/' + path + '_files'
     session = requests.Session()
-    # ... whatever other requests config you need here
     response = session.get(url)
     soup = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
     tags_inner = {'img': 'src', 'link': 'href', 'script': 'src', 'style': '', 'title': ''}
@@ -104,34 +102,43 @@ def savePage(url, pagepath):
 
     header = soup.find('header')
     if header:
-        delete_logo(header)
+        try_delete_logo(header)
     footer = soup.find('footer')
     if footer:
-        delete_logo(footer)
+        try_delete_logo(footer)
 
-    with open(os.path.join('templates', f'{path}.html'), 'wb') as file:  # saves modified html doc
+    with open(os.path.join('templates', f'{path}.html'), 'w') as file:
+        file.write(
+            '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">'.rstrip(
+                '\r\n') + '\n' + '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>'.rstrip(
+                '\r\n') + '\n')
+
+    with open(os.path.join('templates', f'{path}.html'), 'ab') as file:
         file.write(soup.prettify('utf-8'))
 
     with open(os.path.join('templates', f'{path}.html'), 'a') as file:
         file.write('<style>a {pointer-events: none;} button {pointer-events: none;}</style>\n')
-        file.write(
-            '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">\n')
-        file.write(
-            '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>')
         file.write('{% block content %} {% endblock %}')
 
 
-@app.route("/game", methods=['GET', 'POST'])
-def game():
+@app.route("/game/<title>", methods=['GET', 'POST'])
+def game(title):
     form = AnswerForm()
-    params = {"title": "discord",
+    params = {"title": title,
+              "pagefolder": "discord_files",
               "form": form}
+    if form.validate_on_submit():
+        if form.title.data.lower() == title:
+            return redirect("/game")
+        else:
+            params["message"] = "Неверное имя сайта"
+        return render_template('answer.html', **params)
     return render_template("answer.html", **params)
 
 
 # savePage('https://www.yahoo.com/', 'yahoo')
 # savePage('https://www.wikipedia.org/', 'wiki')
 # savePage('https://www.reddit.com/', 'reddit')
-# savePage('https://github.com/', 'github')
+savePage('https://github.com/', 'github')
 savePage('https://discord.com/', 'discord')
 app.run(port=8087, host='127.0.0.1')
