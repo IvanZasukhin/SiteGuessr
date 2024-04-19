@@ -15,9 +15,10 @@
 </style>
 <div class="answer">
     <form action="" method="post" class="row gy-2 gx-3 align-items-center">
+        {{ form.csrf_token }}
         <div class="col-auto">
-            {{form.title.label(class="visually-hidden", for="autoSizingInput")}}
-            {{form.title(class="form-control", id="autoSizingInput", placeholder="Введите название")}}
+            {{ form.title.label(class="visually-hidden", for="autoSizingInput") }}
+            {{ form.title(class="form-control", id="autoSizingInput", placeholder="Введите название") }}
             {% if form.title.errors %}
                 {% for error in form.title.errors %}
                 <div>
@@ -27,7 +28,7 @@
             {% endif %}
         </div>
         <div class="col-auto">
-            {{form.submit(class="btn btn-primary", type="submit")}}
+            {{ form.submit(class="btn btn-primary") }}
         </div>
     </form>
 </div>

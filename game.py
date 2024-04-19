@@ -7,8 +7,7 @@ from bs4 import BeautifulSoup
 
 from forms.answer import AnswerForm
 from flask import Flask, render_template, abort, redirect, make_response, jsonify, request, url_for
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask_restful import Api
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandex_lyceum_secret_key'
@@ -83,7 +82,7 @@ def savePage(url, pagepath):
                                 break
 
     path, _ = os.path.splitext(pagepath)
-    pagefolder = 'static/' + path + '_files'
+    pagefolder = os.path.join('static', f'{path}_files')
     session = requests.Session()
     response = session.get(url)
     soup = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
@@ -129,7 +128,7 @@ def game(title):
               "form": form}
     if form.validate_on_submit():
         if form.title.data.lower() == title:
-            return redirect("/game")
+            return redirect("/game/github")
         else:
             params["message"] = "Неверное имя сайта"
         return render_template('answer.html', **params)
