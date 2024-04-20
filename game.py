@@ -1,86 +1,80 @@
-import os, sys, re
+import os, re
 import requests
 import itertools
 
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
-from forms.answer import AnswerForm
-from flask import Flask, render_template, abort, redirect
+
+def save_and_rename(soup, pagefolder, session, url, tag, inner):
+    if not os.path.exists(pagefolder):
+        os.mkdir(pagefolder)
+    for res in soup.findAll(tag):
+        if tag == 'title':
+            res.string = 'Title'
+        elif tag == 'style':
+            try:
+                text = res.string.strip()
+                if 'url' in text:
+                    index = 0
+                    s = re.search("(url\(+)(?!\")([^)]*)", text)
+                    while s:
+                        urls = text[s.start() + 4 + index: s.end() + index]
+                        filename = urls.split('/')[-1]
+                        filepath = os.path.join(pagefolder, filename)
+                        fileurl = urljoin(url, urls)
+                        localpath = '../' + os.path.join(pagefolder, filename).replace('\\', '/')
+                        text = (text[:s.start() + 4 + index] + localpath + text[s.end() - 1 + index + 1:])
+                        if not os.path.isfile(filepath):
+                            with open(filepath, 'wb') as f:
+                                filebin = session.get(fileurl)
+                                f.write(filebin.content)
+
+                        index += s.end() - (len(urls) - len(localpath))
+                        s = re.search("(url\(+)(?!\")([^)]*)", text[index:])
+                    res.string = text
+
+            except Exception:
+                res.string = text
+                pass
+
+        elif res.has_attr(inner):
+            try:
+                filename, ext = os.path.splitext(os.path.basename(res[inner]))
+                if '?' in ext:
+                    ext = ext[:ext.find('?')]
+                filename = re.sub('\W+', '', filename) + ext
+                fileurl = urljoin(url, res.get(inner))
+                filepath = os.path.join(pagefolder, filename)
+                res[inner] = '../' + os.path.join(pagefolder, filename).replace('\\', '/')
+                if tag == 'img':
+                    if res.has_attr('srcset'):
+                        res.attrs['srcset'] = ''
+
+                if not os.path.isfile(filepath):  # was not downloaded
+                    with open(filepath, 'wb') as file:
+                        filebin = session.get(fileurl)
+                        file.write(filebin.content)
+
+            except Exception:
+                pass
 
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'yandex_lyceum_secret_key'
+def try_delete_logo(soup):
+    for res in soup.findAll():
+        if res.attrs:
+            for attr in res.attrs:
+                if 'logo' in attr:
+                    res.string = ''
+                    break
+                elif res.has_attr('class'):
+                    for cl in res.attrs['class']:
+                        if 'logo' in cl:
+                            res.string = ''
+                            break
 
 
 def save_page(url, pagepath):
-    def save_and_rename(soup, pagefolder, session, url, tag, inner):
-        if not os.path.exists(pagefolder):
-            os.mkdir(pagefolder)
-        for res in soup.findAll(tag):
-            if tag == 'title':
-                res.string = 'Title'
-            elif tag == 'style':
-                try:
-                    text = res.string.strip()
-                    if 'url' in text:
-                        index = 0
-                        s = re.search("(url\(+)(?!\")([^)]*)", text)
-                        while s:
-                            urls = text[s.start() + 4 + index: s.end() + index]
-                            filename = urls.split('/')[-1]
-                            filepath = os.path.join(pagefolder, filename)
-                            fileurl = urljoin(url, urls)
-                            res.string = (res.string[:s.start() + 5 + index] + '../' +
-                                          os.path.join(pagefolder, filename).replace('\\', '/') +
-                                          res.string[s.end() + index + 1:])
-                            if not os.path.isfile(filepath):
-                                with open(filepath, 'wb') as f:
-                                    filebin = session.get(fileurl)
-                                    f.write(filebin.content)
-
-                            index += s.end()
-                            s = re.search("(url\(+)(?!\")([^)]*)", text[index:])
-                            # s = re.search(r"url\([^)]*\)", text[index:])
-
-                except Exception as exc:
-                    res.string = text
-                    pass
-
-            elif res.has_attr(inner):
-                try:
-                    filename, ext = os.path.splitext(os.path.basename(res[inner]))
-                    if '?' in ext:
-                        ext = ext[:ext.find('?')]
-                    filename = re.sub('\W+', '', filename) + ext
-                    fileurl = urljoin(url, res.get(inner))
-                    filepath = os.path.join(pagefolder, filename)
-                    res[inner] = '../' + os.path.join(pagefolder, filename).replace('\\', '/')
-                    if tag == 'img':
-                        if res.has_attr('srcset'):
-                            res.attrs['srcset'] = ''
-
-                    if not os.path.isfile(filepath):  # was not downloaded
-                        with open(filepath, 'wb') as file:
-                            filebin = session.get(fileurl)
-                            file.write(filebin.content)
-
-                except Exception as exc:
-                    pass
-
-    def try_delete_logo(soup):
-        for res in soup.findAll():
-            if res.attrs:
-                for attr in res.attrs:
-                    if 'logo' in attr:
-                        res.string = ''
-                        break
-                    elif res.has_attr('class'):
-                        for cl in res.attrs['class']:
-                            if 'logo' in cl:
-                                res.string = ''
-                                break
-
     path, _ = os.path.splitext(pagepath)
     pagefolder = os.path.join('static', f'{path}_files')
     session = requests.Session()
@@ -92,7 +86,7 @@ def save_page(url, pagepath):
 
     titles = list(map(''.join, itertools.product(*zip(pagepath.upper(), pagepath.lower()))))
     for res in soup.find_all():
-        if res.text and res.string:
+        if res.text and res.string and res.name != 'style':
             text = res.string
             for title in titles:
                 if title in text:
@@ -118,20 +112,3 @@ def save_page(url, pagepath):
     with open(os.path.join('templates', f'{path}.html'), 'a') as file:
         file.write('<style>a {pointer-events: none;} button {pointer-events: none;}</style>\n')
         file.write('{% block content %} {% endblock %}')
-
-
-@app.route("/game", methods=['GET', 'POST'])
-def game():
-    form = AnswerForm()
-    params = {"title": title,
-              "pagefolder": "discord_files",
-              "form": form}
-    if form.validate_on_submit():
-        if form.title.data.lower() == title:
-            return redirect("/game/github")
-        else:
-            params["message"] = "Неверное имя сайта"
-        return render_template('answer.html', **params)
-    return render_template("answer.html", **params)
-
-

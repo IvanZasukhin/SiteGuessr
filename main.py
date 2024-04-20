@@ -1,4 +1,5 @@
 import datetime
+import jinja2
 from random import choices
 
 from flask import Flask, render_template, abort, redirect, make_response, jsonify, request
@@ -19,11 +20,25 @@ from forms.website_register import WebsiteRegisterForm
 from forms.answer import AnswerForm
 from game import save_page
 
-app = Flask(__name__)
+
+class CustomFlask(Flask):
+    jinja_options = Flask.jinja_options.copy()
+    jinja_options.update(dict(
+        block_start_string='{%',
+        block_end_string='%}',
+        variable_start_string='<%',
+        variable_end_string='%>',
+        comment_start_string='<#',
+        comment_end_string='#>',
+    ))
+
+
+app = CustomFlask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandex_lyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
+templateEnv = jinja2.Environment(comment_start_string='{=', comment_end_string='=}')
 
 
 @app.route("/")
@@ -322,12 +337,12 @@ def game():
     params = {"title": title.name,
               "form": form}
     if form.validate_on_submit():
-        if form.title.data.lower() == title:
+        print(title_num)
+        if form.title.data.lower() == title.name:
             if title_num != 4:
                 title_num += 1
-                params["title"] = title[title_num]
+                params["title"] = titles[title_num].name
             else:
-                title_num = 0
                 return redirect("/")
         else:
             params["message"] = "Неверное имя сайта"
