@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="main-body">
-    <h1 class="text-center">{{ title }}</h1>
+    <h1 class="text-center"><% title %></h1>
     {% if (current_user.role == "admin" or current_user.role == "main admin") and current_user.banned != 1: %}
     <div class="container">
         <a href="/website" class="btn btn-success">Добавить сайт</a>
@@ -23,20 +23,20 @@
             <tbody>
             {% for website in websites %}
             <tr class="-primary">
-                <td>{{ loop.index }}</td>
-                <td>{{ website.name }}</td>
-                <td>{{ website.url }}</td>
+                <td><% loop.index %></td>
+                <td><% website.name %></td>
+                <td><% website.url %></td>
                 <td>
                     <div class="d-grid gap-2">
                         {% if website.user.banned == 0: %}
-                        <a class="btn btn-info " href="/profile/{{ website.user.login }}"
+                        <a class="btn btn-info " href="/profile/<% website.user.login %>"
                            role="button">
-                            {{ website.user.login}}
+                            <% website.user.login%>
                         </a>
                         {% else: %}
-                        <a class="btn btn-danger " href="/profile/{{ website.user.login }}"
+                        <a class="btn btn-danger " href="/profile/<% website.user.login %>"
                            role="button">
-                            {{ website.user.login}}
+                            <% website.user.login%>
                         </a>
                         {% endif %}
                     </div>
@@ -46,11 +46,11 @@
                     current_user.banned != 1 %}
                     <div class="">
                         <div class="d-flex">
-                            <a class="btn btn-warning mx-auto d-grid px-1" href="/website/{{ website.id }}"
+                            <a class="btn btn-warning mx-auto d-grid px-1" href="/website/<% website.id %>"
                                role="button">
                                 Настройки
                             </a>
-                            <a class="btn btn-danger mx-auto d-grid px-1" href="/website_delete/{{ website.id }}"
+                            <a class="btn btn-danger mx-auto d-grid px-1" href="/website_delete/<% website.id %>"
                                role="button">
                                 Удалить
                             </a>

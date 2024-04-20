@@ -2,57 +2,57 @@
 
 {% block content %}
 <div class="main-body">
-    <h1 class="d-flex justify-content-center">{{ title }}</h1>
+    <h1 class="d-flex justify-content-center"><% title %></h1>
     <div class="d-flex justify-content-center">
         <form action="" method="post" class="form">
-            {{ form.hidden_tag() }}
+            <% form.hidden_tag() %>
             <div>
-                {{ form.login.label }}<br>
-                {{ form.login(class="form-control") }}
+                <% form.login.label %><br>
+                <% form.login(class="form-control") %>
                 {% if form.login.errors %}
                 {% for login in form.login.errors %}
                 <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                    <% error %>
                 </div>
                 {% endfor %}
                 {% endif %}
             </div>
             <div>
-                {{ form.password.label }}<br>
-                {{ form.password(class="form-control", type="password") }}<br>
+                <% form.password.label %><br>
+                <% form.password(class="form-control", type="password") %><br>
                 {% if form.password.errors %}
                 {% for error in form.password.errors %}
                 <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                    <% error %>
                 </div>
                 {% endfor %}
                 {% endif %}
             </div>
             <div>
-                {{ form.password_again.label }}<br>
-                {{ form.password_again(class="form-control", type="password") }}<br>
+                <% form.password_again.label %><br>
+                <% form.password_again(class="form-control", type="password") %><br>
                 {% if form.password_again.errors %}
                 {% for error in form.password_again.errors %}
                 <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                    <% error %>
                 </div>
                 {% endfor %}
                 {% endif %}
             </div>
             <div>
-                {{ form.description.label }}<br>
-                {{ form.description(class="form-control") }}<br>
+                <% form.description.label %><br>
+                <% form.description(class="form-control") %><br>
                 {% if form.description.errors %}
                 {% for error in form.description.errors %}
                 <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                    <% error %>
                 </div>
                 {% endfor %}
                 {% endif %}
             </div>
             <div class="d-grid gap-2 mb-4">
-                {{ form.submit(type="submit", class="btn btn-primary") }}
-                {{message}}
+                <% form.submit(type="submit", class="btn btn-primary") %>
+                <%message%>
             </div>
         </form>
     </div>

@@ -2,36 +2,36 @@
 
 {% block content %}
 <div class="main-body">
-    <h1 class="d-flex justify-content-center">{{ title }}</h1>
+    <h1 class="d-flex justify-content-center"><% title %></h1>
     <div class="d-flex justify-content-center">
         <form action="" method="post" class="form">
-            {{ form.hidden_tag() }}
+            <% form.hidden_tag() %>
             <div class="form-outline mb-4">
-                {{ form.login.label}}<br>
-                {{ form.login(class="form-control") }}
+                <% form.login.label%><br>
+                <% form.login(class="form-control") %>
                 {% if form.login.errors %}
                 {% for error in form.login.errors %}
                 <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                    <% error %>
                 </div>
                 {% endfor %}
                 {% endif %}
             </div>
             <div class="form-outline mb-4">
-                {{ form.password.label }}<br>
-                {{ form.password(class="form-control", type="password") }}
+                <% form.password.label %><br>
+                <% form.password(class="form-control", type="password") %>
                 {% if form.password.errors %}
                 {% for error in form.password.errors %}
                 <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                    <% error %>
                 </div>
                 {% endfor %}
                 {% endif %}
             </div>
-            <div>{{ form.remember_me() }} {{ form.remember_me.label }}</div>
+            <div><% form.remember_me() %> <% form.remember_me.label %></div>
             <div class="d-grid gap-2 mb-4">
-                {{ form.submit(type="submit", class="btn btn-primary") }}
-                {{ message }}
+                <% form.submit(type="submit", class="btn btn-primary") %>
+                <% message %>
             </div>
             <a class="dropdown-item d-flex justify-content-center p-2" href="/register">Впервые здесь?
                 Зарегистрироваться</a>

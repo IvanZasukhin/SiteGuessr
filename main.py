@@ -1,6 +1,7 @@
 import datetime
 import jinja2
 from random import choices
+from sqlalchemy.exc import IntegrityError
 
 from flask import Flask, render_template, abort, redirect, make_response, jsonify, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -12,6 +13,7 @@ from data import user_resource, website_resource, game_resources, statistic_reso
 from data.statistics import Statistic
 from data.users import User
 from data.websites import Website
+from data.games import Game
 from forms.user_change_password import ChangePasswordForm
 from forms.user_edit_profile import EditProfileForm
 from forms.user_login import LoginForm
@@ -240,7 +242,7 @@ def change_password(user_login):
     return render_template('change_password.html', **params)
 
 
-@app.route('/user', methods=['GET', 'POST'])
+@app.route('/users', methods=['GET', 'POST'])
 @login_required
 def all_users():
     if not (current_user.role == "main admin" and current_user.banned != 1):
@@ -251,6 +253,19 @@ def all_users():
                         db_sess.query(User).order_by(
                             desc(User.login), desc(User.login)).all()]}
     return render_template("all_users.html", **params)
+
+
+@app.route('/games', methods=['GET', 'POST'])
+@login_required
+def all_games():
+    if not (current_user.role == "main admin" and current_user.banned != 1):
+        return redirect("/")
+    db_sess = db_session.create_session()
+    params = {"title": "Все игры",
+              "users": [game for game in
+                        db_sess.query(Game).order_by(
+                            desc(Game.scores), desc(Game.finish_date)).all()]}
+    return render_template("all_games.html", **params)
 
 
 @app.route('/website', methods=['GET', 'POST'])
@@ -309,6 +324,8 @@ def website_edit(website_id):
 @app.route('/website_delete/<int:website_id>', methods=['GET', 'POST'])
 @login_required
 def website_delete(website_id):
+    if not ((current_user.role == "admin" or current_user.role == "main admin") and current_user.banned != 1):
+        return redirect("/")
     db_sess = db_session.create_session()
     if current_user.role == 'main admin' and current_user.banned != 1:
         website = db_sess.query(Website).get(website_id)
@@ -323,8 +340,21 @@ def website_delete(website_id):
     return redirect('/websites')
 
 
+@app.route("/game_menu", methods=['GET', 'POST'])
+@login_required
+def game_menu():
+    if not current_user.banned != 1:
+        return redirect("/")
+    db_sess = db_session.create_session()
+    params = {"title": "Новая игра",
+              "games": [game for game in
+                        db_sess.query(Game).join(User).filter(User.banned == 0).order_by(
+                            desc(Game.scores), desc(Game.finish_date)).limit(50).all()]}
+    return render_template('game_menu.html', **params)
+
+
 @app.route("/game", methods=['GET', 'POST'])
-def game():
+def gaming():
     db_sess = db_session.create_session()
     titles = db_sess.query(Website).all()
     titles = choices(titles, k=5)
@@ -365,17 +395,47 @@ def main():
     api.add_resource(statistic_resource.StatisticListResource, '/api/statistic')
     api.add_resource(statistic_resource.StatisticResource, '/api/statistic/<int:game_id>')
 
+    try:
+        db_sess = db_session.create_session()
+        user = User()
+        user.login = "Admin"
+        user.description = "Admin"
+        user.modified_date = datetime.datetime.now()
+        user.created_date = datetime.datetime.now()
+        user.role = "main admin"
+        user.set_password("0132456789")
+        db_sess.add(user)
+        statistic = Statistic()
+        statistic.user_id = user.id
+        user.statistic = statistic
+        db_sess.commit()
+    except IntegrityError:
+        pass
+
     app.run(port=8088, host='127.0.0.1')
 
 
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
+    params = {"title": "error",
+              "error": "Такой страницы у нас нет."}
+    return render_template('error.html', **params), 404
+    # return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 @app.errorhandler(400)
 def bad_request(_):
-    return make_response(jsonify({'error': 'Bad Request'}), 400)
+    params = {"title": "error",
+              "error": "Запрос корректен, но сайт почему-то не может его обработать."}
+    return render_template('error.html', **params), 400
+    # return make_response(jsonify({'error': 'Bad Request'}), 400)
+
+
+@app.errorhandler(401)
+def authorisation_error(error):
+    params = {"title": "error",
+              "error": "Пожалуйста, авторизуйтесь."}
+    return render_template('error.html', **params), 401
 
 
 if __name__ == '__main__':

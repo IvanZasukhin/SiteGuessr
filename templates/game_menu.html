@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main-body">
+    <div class="row" style="height: 100px">
+        <a href="/game" class="h-100 p-3">
+            <button class="btn btn-primary w-100 h-100 active">
+                Новая игра
+            </button>
+        </a>
+    </div>
+    <div class="row">
+        <h1 class="text-center">Топ сыгранных игр игры</h1>
+        <div class="container">
+            <table class="table table-striped-columns table-bordered ">
+                <thead>
+                <tr class="">
+                    <th class="col-3" scope="col">Веб-сайты</th>
+                    <th class="col-3" scope="col">Баллы</th>
+                    <th class="col-3" scope="col">Дата окончания</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for game in games %}
+                <tr class="">
+                    <td><% ", ".join(list(game.websites_id)) %></td>
+                    <td><% game.scores %></td>
+                    <td><% game.finish_date %></td>
+                </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

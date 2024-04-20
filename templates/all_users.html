@@ -17,9 +17,9 @@
             <tbody>
             {% for user in users %}
             <tr class="">
-                <td><a class="btn btn-primary" href="/profile/{{ user.login }}" role="button">{{ user.login }}</a></td>
-                <td>{{ user.statistic.total_games }}</td>
-                <td>{{ user.statistic.average_score }}</td>
+                <td><a class="btn btn-primary" href="/profile/<% user.login %>" role="button"><% user.login %></a></td>
+                <td><% user.statistic.total_games %></td>
+                <td><% user.statistic.average_score %></td>
                 <td>
                     {% if user.banned: %}
                     <div class="col-sm-9 text-danger">
@@ -31,7 +31,7 @@
                     </div>
                     {% endif %}
                 </td>
-                <td>{{ user.role }}</td>
+                <td><% user.role %></td>
             </tr>
             {% endfor %}
 

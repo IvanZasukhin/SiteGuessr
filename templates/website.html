@@ -2,35 +2,35 @@
 
 {% block content %}
 <div class="main-body">
-    <h1 class="d-flex justify-content-center">{{ title }}</h1>
+    <h1 class="d-flex justify-content-center"><% title %></h1>
     <div class="d-flex justify-content-center">
         <form action="" method="post" class="form">
-            {{ form.hidden_tag() }}
+            <% form.hidden_tag() %>
             <div>
-                {{ form.name.label }}<br>
-                {{ form.name(class="form-control") }}
+                <% form.name.label %><br>
+                <% form.name(class="form-control") %>
                 {% if form.name.errors %}
                 {% for name in form.name.errors %}
                 <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                    <% error %>
                 </div>
                 {% endfor %}
                 {% endif %}
             </div>
             <div>
-                {{ form.url.label }}<br>
-                {{ form.url(class="form-control") }}<br>
+                <% form.url.label %><br>
+                <% form.url(class="form-control") %><br>
                 {% if form.url.errors %}
                 {% for error in form.url.errors %}
                 <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                    <% error %>
                 </div>
                 {% endfor %}
                 {% endif %}
             </div>
             <div class="d-grid gap-2 mb-4">
-                {{ form.submit(type="submit", class="btn btn-primary") }}
-                {{message}}
+                <% form.submit(type="submit", class="btn btn-primary") %>
+                <%message%>
             </div>
 
         </form>

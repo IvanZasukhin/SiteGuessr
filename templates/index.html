@@ -2,33 +2,43 @@
 
 {% block content %}
 <div class="main-body">
-    <h1 class="text-center">Лучшие игроки</h1>
-    <div class="container">
-        <table class="table table-striped-columns table-bordered ">
-            <thead>
-            <tr class="">
-                <th class="col-6" scope="col">Имя пользователя</th>
-                <th class="col-3" scope="col">Всего игр</th>
-                <th class="col-3" scope="col">Правильные ответы</th>
-                <th class="col-3" scope="col">Неправильные ответы</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for user in users %}
-            <tr class="">
-                {% if current_user.is_authenticated: %}
-                <td><a class="btn btn-primary" href="/profile/{{ user.login }}" role="button">{{ user.login }}</a></td>
-                {% else: %}
-                <td>{{ user.login }}</td>
-                {% endif %}
-                <td>{{ user.statistic.total_games }}</td>
-                <td>{{ user.statistic.correct_answers }}</td>
-                <td>{{ user.statistic.wrong_answers }}</td>
-            </tr>
-            {% endfor %}
+    <div class="row" style="height: 100px">
+        <a href="/game_menu" class="h-100 p-3">
+            <button class="btn btn-primary w-100 h-100">
+                Играть
+            </button>
+        </a>
+    </div>
+    <div class="row">
+        <h1 class="text-center">Лучшие игроки</h1>
+        <div class="container">
+            <table class="table table-striped-columns table-bordered ">
+                <thead>
+                <tr class="">
+                    <th class="col-6" scope="col">Имя пользователя</th>
+                    <th class="col-3" scope="col">Всего игр</th>
+                    <th class="col-3" scope="col">Правильные ответы</th>
+                    <th class="col-3" scope="col">Неправильные ответы</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                <tr class="">
+                    {% if current_user.is_authenticated: %}
+                    <td><a class="btn btn-primary" href="/profile/<% user.login %>" role="button"><% user.login %></a>
+                    </td>
+                    {% else: %}
+                    <td><% user.login %></td>
+                    {% endif %}
+                    <td><% user.statistic.total_games %></td>
+                    <td><% user.statistic.correct_answers %></td>
+                    <td><% user.statistic.wrong_answers %></td>
+                </tr>
+                {% endfor %}
 
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
