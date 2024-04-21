@@ -6,7 +6,7 @@
     <div>
         <form action="" method="post" class="col">
             <div class="row justify-content-center">
-                {{ form.hidden_tag() %>
+                <% form.hidden_tag() %>
                 <div class="col-xxl-6 d-flex p-2">
                     <div class="col card">
                         <div class="card-body">
@@ -14,25 +14,25 @@
                             {% if current_user.role == "main admin" and current_user.id != user.id: %}
                             <div class="row">
                                 <div class="col-sm-3"><h6 class="mb-0"> Логин </h6></div>
-                                <div class="col-sm-9 text-secondary"> {{ user.login %></div>
+                                <div class="col-sm-9 text-secondary"> <% user.login %></div>
                                 {% if form.login.errors %}
                                 {% for error in form.login.errors %}
                                 <div class="alert alert-danger" role="alert">
-                                    {{ error %>
+                                    <% error %>
                                 </div>
                                 {% endfor %}
                                 {% endif %}
                             </div>
                             {% else: %}
                             <div class="row">
-                                <div class="col-sm-3"><h6 class="mb-0"> {{ form.login.label %> </h6></div>
+                                <div class="col-sm-3"><h6 class="mb-0"> <% form.login.label %> </h6></div>
                                 <div class="col-sm-9 text-secondary">
-                                    {{ form.login(class="col-sm-9 text-secondary") %>
+                                    <% form.login(class="col-sm-9 text-secondary") %>
                                 </div>
                                 {% if form.login.errors %}
                                 {% for error in form.login.errors %}
                                 <div class="alert alert-danger" role="alert">
-                                    {{ error %>
+                                    <% error %>
                                 </div>
                                 {% endfor %}
                                 {% endif %}
@@ -40,14 +40,14 @@
                             {% endif %}
                             <hr>
                             <div class="row">
-                                <div class="col-sm-3"><h6 class="mb-0"> {{ form.description.label %> </h6></div>
+                                <div class="col-sm-3"><h6 class="mb-0"> <% form.description.label %> </h6></div>
                                 <div class="col-sm-9 text-secondary">
-                                    {{ form.description(class="col-sm-9 text-secondary")%>
+                                    <% form.description(class="col-sm-9 text-secondary")%>
                                 </div>
                                 {% if form.description.errors %}
                                 {% for error in form.description.errors %}
                                 <div class="alert alert-danger" role="alert">
-                                    {{ error %>
+                                    <% error %>
                                 </div>
                                 {% endfor %}
                                 {% endif %}
@@ -55,14 +55,14 @@
                             <hr>
                             {% if user.role != "main admin" and current_user.role == "main admin": %}
                             <div class="row">
-                                <div class="col-sm-3"><h6 class="mb-0"> {{ form.role.label %> </h6></div>
+                                <div class="col-sm-3"><h6 class="mb-0"> <% form.role.label %> </h6></div>
                                 <div class="col-sm-9 text-secondary">
-                                    {{ form.role(class="col-sm-9 text-secondary") %>
+                                    <% form.role(class="col-sm-9 text-secondary") %>
                                 </div>
                                 {% if form.role.errors %}
                                 {% for error in form.role.errors %}
                                 <div class="alert alert-danger" role="alert">
-                                    {{ error %>
+                                    <% error %>
                                 </div>
                                 {% endfor %}
                                 {% endif %}
@@ -71,7 +71,7 @@
                             {% endif %}
                             <div class="row">
                                 <div class="col-sm-3"><h6 class="mb-0"> Дата создания </h6></div>
-                                <div class="col-sm-9 text-secondary"> {{ user.created_date %></div>
+                                <div class="col-sm-9 text-secondary"> <% user.created_date %></div>
                             </div>
                             <hr>
                         </div>
@@ -84,70 +84,70 @@
                             <h4 class="d-flex align-items-center mb-3"> Статистика игр </h4>
                             <hr>
                             <div class="row">
-                                <div class="col-sm-5"><h6 class="mb-0"> {{ form.total_games.label %> </h6></div>
+                                <div class="col-sm-5"><h6 class="mb-0"> <% form.total_games.label %> </h6></div>
                                 <div class="col-sm-4 text-secondary">
-                                    {{ form.total_games(class="col-sm-9 text-secondary")%>
+                                    <% form.total_games(class="col-sm-9 text-secondary")%>
                                 </div>
                                 {% if form.total_games.errors %}
                                 {% for error in form.total_games.errors %}
                                 <div class="alert alert-danger" role="alert">
-                                    {{ error %>
+                                    <% error %>
                                 </div>
                                 {% endfor %}
                                 {% endif %}
                             </div>
                             <hr>
                             <div class="row">
-                                <div class="col-sm-5"><h6 class="mb-0"> {{ form.correct_answers.label %></h6></div>
+                                <div class="col-sm-5"><h6 class="mb-0"> <% form.correct_answers.label %></h6></div>
                                 <div class="col-sm-4 text-secondary">
-                                    {{ form.correct_answers(class="col-sm-9 text-secondary") %>
+                                    <% form.correct_answers(class="col-sm-9 text-secondary") %>
                                 </div>
                                 {% if form.correct_answers.errors %}
                                 {% for error in form.correct_answers.errors %}
                                 <div class="alert alert-danger" role="alert">
-                                    {{ error %>
+                                    <% error %>
                                 </div>
                                 {% endfor %}
                                 {% endif %}
                             </div>
                             <hr>
                             <div class="row">
-                                <div class="col-sm-5"><h6 class="mb-0"> {{ form.wrong_answers.label %> </h6></div>
+                                <div class="col-sm-5"><h6 class="mb-0"> <% form.wrong_answers.label %> </h6></div>
                                 <div class="col-sm-4 text-secondary">
-                                    {{ form.wrong_answers(class="col-sm-9 text-secondary") %>
+                                    <% form.wrong_answers(class="col-sm-9 text-secondary") %>
                                 </div>
                                 {% if form.wrong_answers.errors %}
                                 {% for error in form.wrong_answers.errors %}
                                 <div class="alert alert-danger" role="alert">
-                                    {{ error %>
+                                    <% error %>
                                 </div>
                                 {% endfor %}
                                 {% endif %}
                             </div>
                             <hr>
                             <div class="row">
-                                <div class="col-sm-5"><h6 class="mb-0"> {{ form.average_score.label %> </h6></div>
+                                <div class="col-sm-5"><h6 class="mb-0"> <% form.average_score.label %> </h6></div>
                                 <div class="col-sm-4 text-secondary">
-                                    {{ form.average_score(class="col-sm-9 text-secondary") %>
+                                    <% form.average_score(class="col-sm-9 text-secondary") %>
                                 </div>
                                 {% if form.average_score.errors %}
                                 {% for error in form.average_score.errors %}
                                 <div class="alert alert-danger" role="alert">
-                                    {{ error %>
+                                    <% error %>
                                 </div>
                                 {% endfor %}
                                 {% endif %}
                             </div>
                             <hr>
                             <div class="row">
-                                <div class="col-sm-5"><h6 class="mb-0"> {{ form.best_score.label %> </h6></div>
+                                <div class="col-sm-5"><h6 class="mb-0"> <% form.best_score.label %> </h6></div>
                                 <div class="col-sm-4 text-secondary">
-                                    {{ form.best_score(class="col-sm-9 text-secondary") %>
+                                    <% form.best_score(class="col-sm-9 text-secondary") %>
                                 </div>
                                 {% if form.best_score.errors %}
                                 {% for error in form.best_score.errors %}
                                 <div class="alert alert-danger" role="alert">
-                                    {{ error %>
+                                    <% error %>
                                 </div>
                                 {% endfor %}
                                 {% endif %}
@@ -163,27 +163,27 @@
                             <hr>
                             <div class="row">
                                 <div class="col-sm-5"><h6 class="mb-0">Количество сыгранных игр</h6></div>
-                                <div class="col-sm-4 text-secondary"> {{ user.statistic.correct_answers %></div>
+                                <div class="col-sm-4 text-secondary"> <% user.statistic.correct_answers %></div>
                             </div>
                             <hr>
                             <div class="row">
                                 <div class="col-sm-5"><h6 class="mb-0">Количество правильных ответов</h6></div>
-                                <div class="col-sm-4 text-secondary"> {{ user.statistic.correct_answers %></div>
+                                <div class="col-sm-4 text-secondary"> <% user.statistic.correct_answers %></div>
                             </div>
                             <hr>
                             <div class="row">
                                 <div class="col-sm-5"><h6 class="mb-0">Количество неправильных ответов</h6></div>
-                                <div class="col-sm-4 text-secondary"> {{ user.statistic.wrong_answers %></div>
+                                <div class="col-sm-4 text-secondary"> <% user.statistic.wrong_answers %></div>
                             </div>
                             <hr>
                             <div class="row">
                                 <div class="col-sm-5"><h6 class="mb-0">Средний балл за игру</h6></div>
-                                <div class="col-sm-4 text-secondary"> {{ user.statistic.average_score %></div>
+                                <div class="col-sm-4 text-secondary"> <% user.statistic.average_score %></div>
                             </div>
                             <hr>
                             <div class="row">
                                 <div class="col-sm-5"><h6 class="mb-0">Лучший счёт</h6></div>
-                                <div class="col-sm-4 text-secondary"> {{ user.statistic.best_score %></div>
+                                <div class="col-sm-4 text-secondary"> <% user.statistic.best_score %></div>
                             </div>
                         </div>
                     </div>
@@ -191,7 +191,7 @@
                 {% endif %}
                 <div class="col col-xxl-12 p-2">
                     <div class="d-flex justify-content-end">
-                        <div>{{ message %></div>
+                        <div><% message %></div>
                     </div>
                     <div class="d-flex justify-content-end">
                         {% if current_user.login == user.login and user.role != "main admin" %}
@@ -205,15 +205,15 @@
                         {% if current_user.role == "main admin" and user.role != "main admin": %}
                         <div class="px-2">
                             {% if user.banned: %}
-                            <a class="btn btn-primary" href="/unbanned/{{ user.id %>">Unbanned</a>
+                            <a class="btn btn-primary" href="/unbanned/<% user.id %>">Unbanned</a>
                             {% else: %}
-                            <a class="btn btn-danger" href="/banned/{{ user.id %>">Banned</a>
+                            <a class="btn btn-danger" href="/banned/<% user.id %>">Banned</a>
                             {% endif %}
                         </div>
                         {% endif %}
                         {% if current_user.login == user.login or current_user.role == "main admin" %}
                         <div class="">
-                            {{ form.submit(type="submit", class="btn btn-info") %>
+                            <% form.submit(type="submit", class="btn btn-info") %>
                         </div>
                         {% endif %}
                     </div>
@@ -226,7 +226,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Заголовок модального окна</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Удаление аккаунта</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -234,7 +234,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                <a class="" href="/delete_user/{{ user.id %>">
+                <a class="" href="/delete_user/<% user.id %>">
                     <button type="button" class="btn btn-danger">
                         Удалить
                     </button>

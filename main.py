@@ -2,6 +2,7 @@ import datetime
 import jinja2
 from random import choices
 from sqlalchemy.exc import IntegrityError
+from urllib.parse import urlparse
 
 from flask import Flask, render_template, abort, redirect, make_response, jsonify, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -110,6 +111,19 @@ def register():
     return render_template('register.html', **params)
 
 
+@app.route('/delete_user/<int:user_id>', methods=['GET'])
+@login_required
+def delete_user(user_id):
+    if current_user.id != user_id:
+        return redirect("/")
+    logout_user()
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(user_id)
+    db_sess.delete(user)
+    db_sess.commit()
+    return redirect("/")
+
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
@@ -190,11 +204,12 @@ def edit_user(user_login):
             user.modified_date = datetime.datetime.now()
             if form.role.data:
                 user.role = form.role.data
-            user.statistic.total_games = form.total_games.data
-            user.statistic.correct_answers = form.correct_answers.data
-            user.statistic.wrong_answers = form.wrong_answers.data
-            user.statistic.average_score = form.average_score.data
-            user.statistic.best_score = form.best_score.data
+            if current_user.role == "main admin":
+                user.statistic.total_games = form.total_games.data
+                user.statistic.correct_answers = form.correct_answers.data
+                user.statistic.wrong_answers = form.wrong_answers.data
+                user.statistic.average_score = form.average_score.data
+                user.statistic.best_score = form.best_score.data
             db_sess.commit()
             return redirect(f'/profile/{user_login}')
         else:
@@ -280,6 +295,9 @@ def website_register():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         website = Website()
+        if not form.name.data:
+            ful_name = str(urlparse(form.url.data).hostname).split(".")
+            form.name.data = ful_name[1] if len(ful_name) > 2 else ful_name[0]
         if db_sess.query(Website).filter((Website.name == form.name.data) | (Website.url == form.url.data)).first():
             params["message"] = "Уже есть такой сайт"
             return render_template('website.html', **params)
@@ -312,6 +330,13 @@ def website_edit(website_id):
         db_sess = db_session.create_session()
         website = db_sess.query(Website).get(website_id)
         if website:
+            if not form.name.data:
+                ful_name = str(urlparse(form.url.data).hostname).split(".")
+                form.name.data = ful_name[1] if len(ful_name) > 2 else ful_name[0]
+            if str(form.name.data) != str(website.name) and str(form.url.data) != str(website.url) and db_sess.query(
+                    Website).filter((Website.name == form.name.data) | (Website.url == form.url.data)).first():
+                params["message"] = "Уже есть такой сайт"
+                return render_template('website.html', **params)
             website.name = form.name.data
             website.url = form.url.data
             db_sess.commit()

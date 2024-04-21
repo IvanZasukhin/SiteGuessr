@@ -13,30 +13,29 @@ def save_and_rename(soup, pagefolder, session, url, tag, inner):
         if tag == 'title':
             res.string = 'Title'
         elif tag == 'style':
-            try:
-                text = res.string.strip()
-                if 'url' in text:
-                    index = 0
-                    s = re.search("(url\(+)(?!\")([^)]*)", text)
-                    while s:
-                        urls = text[s.start() + 4 + index: s.end() + index]
-                        filename = urls.split('/')[-1]
-                        filepath = os.path.join(pagefolder, filename)
-                        fileurl = urljoin(url, urls)
-                        localpath = '../' + os.path.join(pagefolder, filename).replace('\\', '/')
-                        text = (text[:s.start() + 4 + index] + localpath + text[s.end() - 1 + index + 1:])
-                        if not os.path.isfile(filepath):
-                            with open(filepath, 'wb') as f:
-                                filebin = session.get(fileurl)
-                                f.write(filebin.content)
+            if res.string:
+                try:
+                    text = res.string.strip()
+                    if 'url' in text:
+                        index = 0
+                        s = re.search("(url\(+)(?!\")([^)]*)", text)
+                        while s:
+                            urls = text[s.start() + 4 + index: s.end() + index]
+                            filename = urls.split('/')[-1]
+                            filepath = os.path.join(pagefolder, filename)
+                            fileurl = urljoin(url, urls)
+                            localpath = '../' + os.path.join(pagefolder, filename).replace('\\', '/')
+                            text = (text[:s.start() + 4 + index] + localpath + text[s.end() - 1 + index + 1:])
+                            if not os.path.isfile(filepath):
+                                with open(filepath, 'wb') as f:
+                                    filebin = session.get(fileurl)
+                                    f.write(filebin.content)
 
-                        index += s.end() - (len(urls) - len(localpath))
-                        s = re.search("(url\(+)(?!\")([^)]*)", text[index:])
+                            index += s.end() - (len(urls) - len(localpath))
+                            s = re.search("(url\(+)(?!\")([^)]*)", text[index:])
+                        res.string = text
+                except Exception:
                     res.string = text
-
-            except Exception:
-                res.string = text
-                pass
 
         elif res.has_attr(inner):
             try:
@@ -55,10 +54,8 @@ def save_and_rename(soup, pagefolder, session, url, tag, inner):
                     with open(filepath, 'wb') as file:
                         filebin = session.get(fileurl)
                         file.write(filebin.content)
-
             except Exception:
                 pass
-
 
 def try_delete_logo(soup):
     for res in soup.findAll():

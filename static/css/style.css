@@ -5,3 +5,8 @@
 .form{
     width: 40rem;
 }
+
+.table-wrapper {
+  max-height: 600px;
+  overflow: auto;
+}
