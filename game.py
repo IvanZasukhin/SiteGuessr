@@ -10,8 +10,13 @@ def save_and_rename(soup, pagefolder, session, url, tag, inner):
     if not os.path.exists(pagefolder):
         os.mkdir(pagefolder)
     for res in soup.findAll(tag):
+        if tag == 'link' and res.has_attr('rel'):
+            if res.attrs['rel'] == 'icon':
+                res.string = ''
         if tag == 'title':
             res.string = 'Title'
+        elif tag == 'base':
+            res.extract()
         elif tag == 'style':
             if res.string:
                 try:
@@ -57,18 +62,19 @@ def save_and_rename(soup, pagefolder, session, url, tag, inner):
             except Exception:
                 pass
 
-def try_delete_logo(soup):
-    for res in soup.findAll():
-        if res.attrs:
-            for attr in res.attrs:
-                if 'logo' in attr:
-                    res.string = ''
-                    break
-                elif res.has_attr('class'):
-                    for cl in res.attrs['class']:
-                        if 'logo' in cl:
-                            res.string = ''
-                            break
+
+# def try_delete_logo(soup):
+#     for res in soup.findAll():
+#         if res.attrs:
+#             for attr in res.attrs:
+#                 if 'logo' in attr:
+#                     res.string = ''
+#                     break
+#                 elif res.has_attr('class'):
+#                     for cl in res.attrs['class']:
+#                         if 'logo' in cl:
+#                             res.string = ''
+#                             break
 
 
 def save_page(url, pagepath):
@@ -77,25 +83,18 @@ def save_page(url, pagepath):
     session = requests.Session()
     response = session.get(url)
     soup = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
-    tags_inner = {'img': 'src', 'link': 'href', 'script': 'src', 'style': '', 'title': ''}
+    tags_inner = {'img': 'src', 'link': 'href', 'script': 'src', 'style': '', 'title': '', 'base': ''}
     for tag, inner in tags_inner.items():  # saves resource files and rename refs
         save_and_rename(soup, pagefolder, session, url, tag, inner)
 
     titles = list(map(''.join, itertools.product(*zip(pagepath.upper(), pagepath.lower()))))
     for res in soup.find_all():
-        if res.text and res.string and res.name != 'style':
+        if res.text and res.string and res.name != 'style' and res.name != 'script':
             text = res.string
             for title in titles:
                 if title in text:
                     text = text.replace(title, '*Title*')
             res.string.replace_with(text)
-
-    header = soup.find('header')
-    if header:
-        try_delete_logo(header)
-    footer = soup.find('footer')
-    if footer:
-        try_delete_logo(footer)
 
     with open(os.path.join('templates', f'{path}.html'), 'w') as file:
         file.write(
@@ -108,4 +107,7 @@ def save_page(url, pagepath):
 
     with open(os.path.join('templates', f'{path}.html'), 'a') as file:
         file.write('<style>a {pointer-events: none;} button {pointer-events: none;}</style>\n')
-        file.write('{% block content %} {% endblock %}')
+        file.write('<$ block content $> <$ endblock $>')
+
+
+save_page('https://www.wildberries.ru/', 'wildberries')

@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+<$ extends "base.html" $>
 
-{% block content %}
+<$ block content $>
 <div class="main-body">
     <h1 class="text-center"><% title %></h1>
     <div class="col">
@@ -14,22 +14,22 @@
                             <div class="col-sm-9 text-secondary"> <% user.login %></div>
                         </div>
                         <hr>
-                        {% if user.description: %}
+                        <$ if user.description: $>
                         <div class="row">
                             <div class="col-sm-3"><h6 class="mb-0"> Описание </h6></div>
                             <div class="col-sm-9 text-secondary"> <% user.description %></div>
                         </div>
                         <hr>
-                        {% endif %}
+                        <$ endif $>
                         <div class="row">
                             <div class="col-sm-3"><h6 class="mb-0"> Роль </h6></div>
-                            {% if user.banned: %}
+                            <$ if user.banned: $>
                             <div class="col-sm-9 text-danger"> Заблокирован
                                 <del class="text-secondary">(<% user.role %>)</del>
                             </div>
-                            {% else: %}
+                            <$ else: $>
                             <div class="col-sm-9 text-secondary"> <% user.role %></div>
-                            {% endif %}
+                            <$ endif $>
                         </div>
                         <hr>
                         <div class="row">
@@ -72,21 +72,21 @@
                 </div>
             </div>
             <div class="col col-xl-12 p-2">
-                {% if current_user.login == user.login or current_user.role == "main admin" %}
+                <$ if current_user.login == user.login or current_user.role == "main admin" $>
                 <div class="d-flex justify-content-end">
-                    {% if current_user.login == user.login %}
+                    <$ if current_user.login == user.login $>
                     <div class="px-2">
                         <a class="btn btn-primary" href="/change_password/<% user.login %>">Изменить пароль</a>
                     </div>
-                    {% endif %}
+                    <$ endif $>
                     <div class="">
                         <a class="btn btn-info" href="/user/<% user.login %>">Редактировать</a>
                     </div>
                 </div>
-                {% endif %}
+                <$ endif $>
             </div>
         </div>
     </div>
 </div>
 
-{% endblock %}
+<$ endblock $>

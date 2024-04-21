@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+<$ extends "base.html" $>
 
-{% block content %}
+<$ block content $>
 <div class="main-body">
     <h1 class="d-flex justify-content-center"><% title %></h1>
     <div class="d-flex justify-content-center">
@@ -9,24 +9,24 @@
             <div class="form-outline mb-4">
                 <% form.login.label%><br>
                 <% form.login(class="form-control") %>
-                {% if form.login.errors %}
-                {% for error in form.login.errors %}
+                <$ if form.login.errors $>
+                <$ for error in form.login.errors $>
                 <div class="alert alert-danger" role="alert">
                     <% error %>
                 </div>
-                {% endfor %}
-                {% endif %}
+                <$ endfor $>
+                <$ endif $>
             </div>
             <div class="form-outline mb-4">
                 <% form.password.label %><br>
                 <% form.password(class="form-control", type="password") %>
-                {% if form.password.errors %}
-                {% for error in form.password.errors %}
+                <$ if form.password.errors $>
+                <$ for error in form.password.errors $>
                 <div class="alert alert-danger" role="alert">
                     <% error %>
                 </div>
-                {% endfor %}
-                {% endif %}
+                <$ endfor $>
+                <$ endif $>
             </div>
             <div><% form.remember_me() %> <% form.remember_me.label %></div>
             <div class="d-grid gap-2 mb-4">
@@ -40,4 +40,4 @@
 
 </div>
 
-{% endblock %}
+<$ endblock $>

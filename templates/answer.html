@@ -1,12 +1,16 @@
-{% set path = title + ".html" %}
-{% extends path %}
+<$ set path = title + ".html" $>
+<$ extends path $>
 
-{% block content %}
+<$ block content $>
+<link rel="icon" type="image/png" size="32x32" href="https://yastatic.net/s3/distribution/promo/react-yandex-favicon/vv0.1.1/favicons/ru/favicon-32x32.png" data-react-helmet="true">
 <style>
     .answer {
         position: fixed;
+        width: 350px;
+        height: 40px;
+        z-index: 9999;
         left: 50%;
-        bottom: 0;
+        top: 0;
         transform: translate(-50%, 0);
         margin: 0 auto;
         padding: 10px;
@@ -19,17 +23,17 @@
         <div class="col-auto">
             <% form.title.label(class="visually-hidden", for="autoSizingInput") %>
             <% form.title(class="form-control", id="autoSizingInput", placeholder="Введите название") %>
-            {% if form.title.errors %}
-                {% for error in form.title.errors %}
+            <$ if form.title.errors $>
+                <$ for error in form.title.errors $>
                 <div>
                     <% error %>
                 </div>
-                {% endfor %}
-            {% endif %}
+                <$ endfor $>
+            <$ endif $>
         </div>
         <div class="col-auto">
             <% form.submit(class="btn btn-primary") %>
         </div>
     </form>
 </div>
-{% endblock %}
+<$ endblock $>

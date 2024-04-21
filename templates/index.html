@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+<$ extends "base.html" $>
 
-{% block content %}
+<$ block content $>
 <div class="main-body">
     <div class="row" style="height: 100px">
         <a href="/game_menu" class="h-100 p-3">
@@ -22,19 +22,19 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for user in users %}
+                <$ for user in users $>
                 <tr class="">
-                    {% if current_user.is_authenticated: %}
+                    <$ if current_user.is_authenticated: $>
                     <td><a class="btn btn-primary" href="/profile/<% user.login %>" role="button"><% user.login %></a>
                     </td>
-                    {% else: %}
+                    <$ else: $>
                     <td><% user.login %></td>
-                    {% endif %}
+                    <$ endif $>
                     <td><% user.statistic.total_games %></td>
                     <td><% user.statistic.correct_answers %></td>
                     <td><% user.statistic.wrong_answers %></td>
                 </tr>
-                {% endfor %}
+                <$ endfor $>
 
                 </tbody>
             </table>
@@ -42,4 +42,4 @@
     </div>
 </div>
 
-{% endblock %}
+<$ endblock $>

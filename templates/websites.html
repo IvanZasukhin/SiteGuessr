@@ -1,14 +1,14 @@
-{% extends "base.html" %}
+<$ extends "base.html" $>
 
-{% block content %}
+<$ block content $>
 <div class="main-body">
     <h1 class="text-center"><% title %></h1>
-    {% if (current_user.role == "admin" or current_user.role == "main admin") and current_user.banned != 1: %}
+    <$ if (current_user.role == "admin" or current_user.role == "main admin") and current_user.banned != 1: $>
     <div class="container">
         <a href="/website" class="btn btn-success">Добавить сайт</a>
     </div>
     <br>
-    {% endif %}
+    <$ endif $>
     <div class="container table-wrapper">
         <table class="table table-striped-columns table-bordered ">
             <thead>
@@ -21,29 +21,29 @@
             </tr>
             </thead>
             <tbody>
-            {% for website in websites %}
+            <$ for website in websites $>
             <tr class="-primary">
                 <td><% loop.index %></td>
                 <td><% website.name %></td>
                 <td><% website.url %></td>
                 <td>
                     <div class="d-grid gap-2">
-                        {% if website.user.banned == 0: %}
+                        <$ if website.user.banned == 0: $>
                         <a class="btn btn-info " href="/profile/<% website.user.login %>"
                            role="button">
                             <% website.user.login%>
                         </a>
-                        {% else: %}
+                        <$ else: $>
                         <a class="btn btn-danger " href="/profile/<% website.user.login %>"
                            role="button">
                             <% website.user.login%>
                         </a>
-                        {% endif %}
+                        <$ endif $>
                     </div>
                 </td>
                 <td>
-                    {% if (website.user.login == current_user.login or current_user.role == "main admin") and
-                    current_user.banned != 1 %}
+                    <$ if (website.user.login == current_user.login or current_user.role == "main admin") and
+                    current_user.banned != 1 $>
                     <div class="">
                         <div class="d-flex">
                             <a class="btn btn-warning mx-auto d-grid px-1" href="/website/<% website.id %>"
@@ -56,14 +56,14 @@
                             </a>
                         </div>
                     </div>
-                    {% endif %}
+                    <$ endif $>
                 </td>
             </tr>
-            {% endfor %}
+            <$ endfor $>
 
             </tbody>
         </table>
     </div>
 </div>
 
-{% endblock %}
+<$ endblock $>

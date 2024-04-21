@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+<$ extends "base.html" $>
 
-{% block content %}
+<$ block content $>
 <div class="main-body">
     <h1 class="text-center">Лучшие игроки</h1>
     <div class="container table-wrapper">
@@ -15,29 +15,29 @@
             </tr>
             </thead>
             <tbody>
-            {% for user in users %}
+            <$ for user in users $>
             <tr class="">
                 <td><a class="btn btn-primary" href="/profile/<% user.login %>" role="button"><% user.login %></a></td>
                 <td><% user.statistic.total_games %></td>
                 <td><% user.statistic.average_score %></td>
                 <td>
-                    {% if user.banned: %}
+                    <$ if user.banned: $>
                     <div class="col-sm-9 text-danger">
                         Заблокирован
                     </div>
-                    {% else: %}
+                    <$ else: $>
                     <div class="col-sm-9 text-success">
                         Блокировки нет
                     </div>
-                    {% endif %}
+                    <$ endif $>
                 </td>
                 <td><% user.role %></td>
             </tr>
-            {% endfor %}
+            <$ endfor $>
 
             </tbody>
         </table>
     </div>
 </div>
 
-{% endblock %}
+<$ endblock $>

@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+<$ extends "base.html" $>
 
-{% block content %}
+<$ block content $>
 <div class="main-body">
     <h1 class="text-center"><% title %></h1>
     <div class="container table-wrapper">
@@ -14,17 +14,17 @@
             </tr>
             </thead>
             <tbody>
-            {% for game in games %}
+            <$ for game in games $>
             <tr class="">
                 <td><a class="btn btn-primary" href="/profile/<% game.user.login %>" role="button"><% game.user.login %></a></td>
                 <td><% ", ".join(list(game.websites_id)) %></td>
                 <td><% game.scores %></td>
                 <td><% game.finish_date %></td>
             </tr>
-            {% endfor %}
+            <$ endfor $>
             </tbody>
         </table>
     </div>
 </div>
 
-{% endblock %}
+<$ endblock $>

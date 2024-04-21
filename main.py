@@ -27,8 +27,8 @@ from game import save_page
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
     jinja_options.update(dict(
-        block_start_string='{%',
-        block_end_string='%}',
+        block_start_string='<$',
+        block_end_string='$>',
         variable_start_string='<%',
         variable_end_string='%>',
         comment_start_string='<#',
@@ -368,40 +368,59 @@ def website_delete(website_id):
 @app.route("/game_menu", methods=['GET', 'POST'])
 @login_required
 def game_menu():
+    global titles, wins, defeats
     if not current_user.banned != 1:
         return redirect("/")
     db_sess = db_session.create_session()
-    params = {"title": "Новая игра",
-              "games": [game for game in
-                        db_sess.query(Game).join(User).filter(User.banned == 0).order_by(
-                            desc(Game.scores), desc(Game.finish_date)).limit(50).all()]}
-    return render_template('game_menu.html', **params)
-
-
-@app.route("/game", methods=['GET', 'POST'])
-def gaming():
-    db_sess = db_session.create_session()
+    wins = 0
+    defeats = 0
     titles = db_sess.query(Website).all()
     titles = choices(titles, k=5)
     for title in titles:
         save_page(title.url, title.name)
-    title_num = 0
-    title = titles[title_num]
+    params = {"title": "Новая игра",
+              "games": [game for game in
+                        db_sess.query(Game).join(User).filter(User.banned != 0).order_by(
+                            desc(Game.scores), desc(Game.finish_date)).limit(50).all()]}
+    return render_template('game_menu.html', **params)
 
+
+@app.route("/game/<int:title_num>", methods=['GET', 'POST'])
+def game(title_num):
+    global titles, wins, defeats
+    title = titles[title_num]
+    print(title.name)
     form = AnswerForm()
     params = {"title": title.name,
               "form": form}
     if form.validate_on_submit():
-        print(title_num)
         if form.title.data.lower() == title.name:
-            if title_num != 4:
-                title_num += 1
-                params["title"] = titles[title_num].name
-            else:
-                return redirect("/")
+            wins += 1
         else:
-            params["message"] = "Неверное имя сайта"
-        return render_template('answer.html', **params)
+            defeats += 1
+
+        if title_num != 4:
+            title_num += 1
+        else:
+            db_sess = db_session.create_session()
+            game = Game()
+            game.user_id = current_user.id
+            game.websites_id = str([title.id for title in titles])
+            game.scores = wins
+            game.finish_date = datetime.datetime.now()
+            db_sess.add(game)
+
+            stat = db_sess.query(Statistic).join(User).filter(User.id == current_user.id).first()
+            stat.total_games += 1
+            stat.correct_answers += wins
+            stat.wrong_answers += defeats
+            if wins > stat.best_score:
+                stat.best_score = wins
+            stat.average_score = stat.correct_answers / stat.total_games
+            db_sess.commit()
+
+            return redirect("/")
+        return redirect(f'/game/{title_num}')
     return render_template("answer.html", **params)
 
 

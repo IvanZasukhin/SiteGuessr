@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+<$ extends "base.html" $>
 
-{% block content %}
+<$ block content $>
 <div class="main-body">
     <h1 class="d-flex justify-content-center"><% title %></h1>
     <div class="d-flex justify-content-center">
@@ -9,46 +9,46 @@
             <div>
                 <% form.login.label %><br>
                 <% form.login(class="form-control") %>
-                {% if form.login.errors %}
-                {% for login in form.login.errors %}
+                <$ if form.login.errors $>
+                <$ for login in form.login.errors $>
                 <div class="alert alert-danger" role="alert">
                     <% error %>
                 </div>
-                {% endfor %}
-                {% endif %}
+                <$ endfor $>
+                <$ endif $>
             </div>
             <div>
                 <% form.password.label %><br>
                 <% form.password(class="form-control", type="password") %><br>
-                {% if form.password.errors %}
-                {% for error in form.password.errors %}
+                <$ if form.password.errors $>
+                <$ for error in form.password.errors $>
                 <div class="alert alert-danger" role="alert">
                     <% error %>
                 </div>
-                {% endfor %}
-                {% endif %}
+                <$ endfor $>
+                <$ endif $>
             </div>
             <div>
                 <% form.password_again.label %><br>
                 <% form.password_again(class="form-control", type="password") %><br>
-                {% if form.password_again.errors %}
-                {% for error in form.password_again.errors %}
+                <$ if form.password_again.errors $>
+                <$ for error in form.password_again.errors $>
                 <div class="alert alert-danger" role="alert">
                     <% error %>
                 </div>
-                {% endfor %}
-                {% endif %}
+                <$ endfor $>
+                <$ endif $>
             </div>
             <div>
                 <% form.description.label %><br>
                 <% form.description(class="form-control") %><br>
-                {% if form.description.errors %}
-                {% for error in form.description.errors %}
+                <$ if form.description.errors $>
+                <$ for error in form.description.errors $>
                 <div class="alert alert-danger" role="alert">
                     <% error %>
                 </div>
-                {% endfor %}
-                {% endif %}
+                <$ endfor $>
+                <$ endif $>
             </div>
             <div class="d-grid gap-2 mb-4">
                 <% form.submit(type="submit", class="btn btn-primary") %>
@@ -57,4 +57,4 @@
         </form>
     </div>
 </div>
-{% endblock %}
+<$ endblock $>
