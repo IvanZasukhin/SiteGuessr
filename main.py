@@ -1,6 +1,5 @@
 import datetime
 import threading
-
 import jinja2
 from random import choices
 from sqlalchemy.exc import IntegrityError
@@ -13,14 +12,16 @@ from sqlalchemy import desc
 
 from data import db_session
 from data import user_resource, website_resource, game_resources, statistic_resource
+from data.games import Game
 from data.statistics import Statistic
 from data.users import User
 from data.websites import Website
-from data.games import Game
+from forms.answer import AnswerForm
 from forms.user_change_password import ChangePasswordForm
 from forms.user_edit_profile import EditProfileForm
 from forms.user_login import LoginForm
 from forms.user_register import RegisterForm
+from forms.verification import VerificationForm
 from forms.website_register import WebsiteRegisterForm
 from forms.answer import AnswerForm
 from game import save_page
@@ -373,6 +374,22 @@ def website_delete(website_id):
     return redirect('/websites')
 
 
+@app.route("/save_websites", methods=['GET'])
+@login_required
+def save_websites():
+    if not ((current_user.role == "main admin") and current_user.banned != 1):
+        return redirect("/")
+    threads = []
+    db_sess = db_session.create_session()
+    for title in db_sess.query(Website).all():
+        thread = threading.Thread(target=save_page, args=[title.url, title.name])
+        threads.append(thread)
+        thread.start()
+    for thread in threads:
+        thread.join()
+    return redirect('/')
+
+
 @app.route("/game_menu", methods=['GET', 'POST'])
 @login_required
 def game_menu():
@@ -404,8 +421,15 @@ def game_menu():
 
 @app.route("/view_site/<int:website_id>", methods=['GET', 'POST'])
 def view_site(website_id):
-    params = {"title": "Посмотреть сайт"}
-    return redirect('/')
+    form = VerificationForm()
+    db_sess = db_session.create_session()
+    site = db_sess.query(Website).get(website_id)
+    save_page(site.url, site.name)
+    params = {"title": site.name,
+              "form": form}
+    if form.validate_on_submit():
+        return redirect(f'/websites')
+    return render_template("answer.html", **params)
 
 
 @app.route("/game/<int:game_id>/<int:site_num>", methods=['GET', 'POST'])
@@ -418,7 +442,7 @@ def gameplay(game_id, site_num):
     form = AnswerForm()
     params = {"title": title,
               "form": form}
-    
+
     if form.validate_on_submit():
         stat = db_sess.query(Statistic).join(User).filter(User.id == current_user.id).first()
         if form.title.data.lower() == title:
@@ -435,11 +459,11 @@ def gameplay(game_id, site_num):
             stat.best_score = game.scores
         stat.average_score = stat.correct_answers / stat.total_games
         game.finish_date = datetime.datetime.now()
-        
+
         if site_num == 4:
             db_sess.commit()
             return redirect("/")
-            
+
         db_sess.commit()
         return redirect(f'/game/{game_id}/{site_num}')
     return render_template("answer.html", **params)

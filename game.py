@@ -1,8 +1,9 @@
-import os, re
-import requests
 import itertools
-
+import os
+import re
 from urllib.parse import urljoin
+
+import requests
 from bs4 import BeautifulSoup
 
 
@@ -81,7 +82,10 @@ def save_page(url, pagepath):
     path, _ = os.path.splitext(pagepath)
     pagefolder = os.path.join('static', f'{path}_files')
     session = requests.Session()
-    response = session.get(url)
+    try:
+        response = session.get(url)
+    except requests.exceptions.ConnectionError: # TODO: Надо доделать
+        return
     soup = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
     tags_inner = {'img': 'src', 'link': 'href', 'script': 'src', 'style': '', 'title': '', 'base': ''}
     for tag, inner in tags_inner.items():  # saves resource files and rename refs
@@ -108,6 +112,3 @@ def save_page(url, pagepath):
     with open(os.path.join('templates', f'{path}.html'), 'a') as file:
         file.write('<style>a {pointer-events: none;} button {pointer-events: none;}</style>\n')
         file.write('<$ block content $> <$ endblock $>')
-
-
-save_page('https://www.wildberries.ru/', 'wildberries')

@@ -15,7 +15,7 @@
             </thead>
             <tbody>
             <$ for game in games $>
-            <tr class="">
+            <tr id="<% user.id %>">
                 <td><a class="btn btn-primary" href="/profile/<% game.user.login %>" role="button"><% game.user.login %></a></td>
                 <td><% game.websites_id %></td>
                 <td><% game.scores %></td>

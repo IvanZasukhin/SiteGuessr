@@ -23,11 +23,13 @@
                 </thead>
                 <tbody>
                 <$ for game in games $>
-                <tr class="">
+                <$ if game.finish_date $>
+                <tr id="<% game.id %>">
                     <td><% game.websites_id %></td>
                     <td><% game.scores %></td>
                     <td><% game.finish_date %></td>
                 </tr>
+                <$ endif $>
                 <$ endfor $>
 
                 </tbody>
