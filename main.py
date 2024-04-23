@@ -106,6 +106,8 @@ def register():
         statistic = Statistic()
         statistic.user_id = user.id
         user.statistic = statistic
+        if user.id == 1:
+            user.role = "main admin"
         db_sess.commit()
         return redirect('/login')
     return render_template('register.html', **params)
@@ -224,8 +226,12 @@ def edit_user(user_login):
 @app.route('/websites', methods=['GET', 'POST'])
 @login_required
 def websites():
-    if not (current_user.role == 'admin' or (current_user.role == 'main admin' and current_user.banned != 1)):
+    if not current_user.is_authenticated:
         return redirect("/")
+    if not current_user.banned != 1:
+        params = {"title": "error",
+                  "error": "Извините, у вас есть блокировка вы не можете зайти на эту страницу."}
+        return render_template('error.html', **params)
     db_sess = db_session.create_session()
     params = {"title": "База сайтов",
               "websites": [user for user in
@@ -277,7 +283,7 @@ def all_games():
         return redirect("/")
     db_sess = db_session.create_session()
     params = {"title": "Все игры",
-              "users": [game for game in
+              "games": [game for game in
                         db_sess.query(Game).order_by(
                             desc(Game.scores), desc(Game.finish_date)).all()]}
     return render_template("all_games.html", **params)
@@ -369,8 +375,6 @@ def website_delete(website_id):
 @login_required
 def game_menu():
     global titles, wins, defeats
-    if not current_user.banned != 1:
-        return redirect("/")
     db_sess = db_session.create_session()
     wins = 0
     defeats = 0
@@ -380,13 +384,19 @@ def game_menu():
         save_page(title.url, title.name)
     params = {"title": "Новая игра",
               "games": [game for game in
-                        db_sess.query(Game).join(User).filter(User.banned != 0).order_by(
-                            desc(Game.scores), desc(Game.finish_date)).limit(50).all()]}
+                        db_sess.query(Game).join(User).filter(User.id == current_user.id).order_by(
+                            desc(Game.scores), desc(Game.finish_date)).all()]}
     return render_template('game_menu.html', **params)
 
 
+@app.route("/view_site/<int:website_id>", methods=['GET', 'POST'])
+def view_site(website_id):
+    params = {"title": "Посмотреть сайт"}
+    return redirect('/')
+
+
 @app.route("/game/<int:title_num>", methods=['GET', 'POST'])
-def game(title_num):
+def gameplay(title_num):
     global titles, wins, defeats
     title = titles[title_num]
     print(title.name)
@@ -405,7 +415,7 @@ def game(title_num):
             db_sess = db_session.create_session()
             game = Game()
             game.user_id = current_user.id
-            game.websites_id = str([title.id for title in titles])
+            game.websites_id = ', '.join([str(title.id) for title in titles])
             game.scores = wins
             game.finish_date = datetime.datetime.now()
             db_sess.add(game)
@@ -438,23 +448,6 @@ def main():
 
     api.add_resource(statistic_resource.StatisticListResource, '/api/statistic')
     api.add_resource(statistic_resource.StatisticResource, '/api/statistic/<int:game_id>')
-
-    try:
-        db_sess = db_session.create_session()
-        user = User()
-        user.login = "Admin"
-        user.description = "Admin"
-        user.modified_date = datetime.datetime.now()
-        user.created_date = datetime.datetime.now()
-        user.role = "main admin"
-        user.set_password("0132456789")
-        db_sess.add(user)
-        statistic = Statistic()
-        statistic.user_id = user.id
-        user.statistic = statistic
-        db_sess.commit()
-    except IntegrityError:
-        pass
 
     app.run(port=8088, host='127.0.0.1')
 

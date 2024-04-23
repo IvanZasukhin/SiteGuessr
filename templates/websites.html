@@ -29,7 +29,7 @@
                 <td>
                     <div class="d-grid gap-2">
                         <$ if website.user.banned == 0: $>
-                        <a class="btn btn-info " href="/profile/<% website.user.login %>"
+                        <a class="btn btn-primary " href="/profile/<% website.user.login %>"
                            role="button">
                             <% website.user.login%>
                         </a>
@@ -53,6 +53,10 @@
                             <a class="btn btn-danger mx-auto d-grid px-1" href="/website_delete/<% website.id %>"
                                role="button">
                                 Удалить
+                            </a>
+                            <a class="btn btn-info mx-auto d-grid px-1" href="/view_site/<% website.id %>"
+                               role="button">
+                                Посмотреть
                             </a>
                         </div>
                     </div>

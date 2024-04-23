@@ -23,7 +23,7 @@
                 <tbody>
                 <$ for game in games $>
                 <tr class="">
-                    <td><% ", ".join(list(game.websites_id)) %></td>
+                    <td><% game.websites_id %></td>
                     <td><% game.scores %></td>
                     <td><% game.finish_date %></td>
                 </tr>

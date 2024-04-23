@@ -8,7 +8,7 @@
             <% form.hidden_tag() %>
             <div>
                 <% form.login.label %><br>
-                <% form.login(class="form-control") %>
+                <% form.login(class="form-control") %><br>
                 <$ if form.login.errors $>
                 <$ for login in form.login.errors $>
                 <div class="alert alert-danger" role="alert">
