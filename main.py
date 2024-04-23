@@ -1,10 +1,12 @@
 import datetime
+import threading
+
 import jinja2
 from random import choices
 from sqlalchemy.exc import IntegrityError
 from urllib.parse import urlparse
 
-from flask import Flask, render_template, abort, redirect, make_response, jsonify, request
+from flask import Flask, render_template, abort, redirect, make_response, jsonify, request, g
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import Api
 from sqlalchemy import desc
@@ -374,15 +376,26 @@ def website_delete(website_id):
 @app.route("/game_menu", methods=['GET', 'POST'])
 @login_required
 def game_menu():
-    global titles, wins, defeats
     db_sess = db_session.create_session()
     wins = 0
-    defeats = 0
-    titles = db_sess.query(Website).all()
-    titles = choices(titles, k=5)
-    for title in titles:
-        save_page(title.url, title.name)
+    sites = db_sess.query(Website).all()
+    sites = choices(sites, k=5)
+    threads = []
+    for site in sites:
+        thread = threading.Thread(target=save_page, args=[site.url, site.name])
+        threads.append(thread)
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    game = Game()
+    game.user_id = current_user.id
+    game.websites_id = ', '.join([str(site.id) for site in sites])
+    game.scores = wins
+    db_sess.add(game)
+    db_sess.commit()
     params = {"title": "Новая игра",
+              'game_id': str(game.id),
               "games": [game for game in
                         db_sess.query(Game).join(User).filter(User.id == current_user.id).order_by(
                             desc(Game.scores), desc(Game.finish_date)).all()]}
@@ -395,42 +408,40 @@ def view_site(website_id):
     return redirect('/')
 
 
-@app.route("/game/<int:title_num>", methods=['GET', 'POST'])
-def gameplay(title_num):
-    global titles, wins, defeats
-    title = titles[title_num]
-    print(title.name)
+@app.route("/game/<int:game_id>/<int:site_num>", methods=['GET', 'POST'])
+def gameplay(game_id, site_num):
+    db_sess = db_session.create_session()
+    game = db_sess.query(Game).filter(Game.id == game_id).first()
+    site_id = game.websites_id.split(', ')[site_num]
+    title = db_sess.query(Website).filter(Website.id == site_id).first().name
+    print(title)
     form = AnswerForm()
-    params = {"title": title.name,
+    params = {"title": title,
               "form": form}
+    
     if form.validate_on_submit():
-        if form.title.data.lower() == title.name:
-            wins += 1
-        else:
-            defeats += 1
-
-        if title_num != 4:
-            title_num += 1
-        else:
-            db_sess = db_session.create_session()
-            game = Game()
-            game.user_id = current_user.id
-            game.websites_id = ', '.join([str(title.id) for title in titles])
-            game.scores = wins
-            game.finish_date = datetime.datetime.now()
-            db_sess.add(game)
-
-            stat = db_sess.query(Statistic).join(User).filter(User.id == current_user.id).first()
+        stat = db_sess.query(Statistic).join(User).filter(User.id == current_user.id).first()
+        if form.title.data.lower() == title:
+            game.scores += 1
+            stat.correct_answers += 1
+            stat.wrong_answers -= 1
+        if site_num == 0:
             stat.total_games += 1
-            stat.correct_answers += wins
-            stat.wrong_answers += defeats
-            if wins > stat.best_score:
-                stat.best_score = wins
-            stat.average_score = stat.correct_answers / stat.total_games
+            stat.wrong_answers += 5
+            site_num += 1
+        elif site_num != 4:
+            site_num += 1
+        if game.scores > stat.best_score:
+            stat.best_score = game.scores
+        stat.average_score = stat.correct_answers / stat.total_games
+        game.finish_date = datetime.datetime.now()
+        
+        if site_num == 4:
             db_sess.commit()
-
             return redirect("/")
-        return redirect(f'/game/{title_num}')
+            
+        db_sess.commit()
+        return redirect(f'/game/{game_id}/{site_num}')
     return render_template("answer.html", **params)
 
 

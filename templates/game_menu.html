@@ -1,9 +1,10 @@
 <$ extends "base.html" $>
 
 <$ block content $>
+<$ set path = "/game/" + game_id + "/0" $>
 <div class="main-body">
     <div class="row" style="height: 100px">
-        <a href="/game/0" class="h-100 p-3">
+        <a href=<% path %> class="h-100 p-3">
             <button class="btn btn-primary w-100 h-100 active">
                 Новая игра
             </button>

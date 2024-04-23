@@ -29,7 +29,7 @@ def save_and_rename(soup, pagefolder, session, url, tag, inner):
                             filename = urls.split('/')[-1]
                             filepath = os.path.join(pagefolder, filename)
                             fileurl = urljoin(url, urls)
-                            localpath = '../' + os.path.join(pagefolder, filename).replace('\\', '/')
+                            localpath = '../../' + os.path.join(pagefolder, filename).replace('\\', '/')
                             text = (text[:s.start() + 4 + index] + localpath + text[s.end() - 1 + index + 1:])
                             if not os.path.isfile(filepath):
                                 with open(filepath, 'wb') as f:
@@ -50,7 +50,7 @@ def save_and_rename(soup, pagefolder, session, url, tag, inner):
                 filename = re.sub('\W+', '', filename) + ext
                 fileurl = urljoin(url, res.get(inner))
                 filepath = os.path.join(pagefolder, filename)
-                res[inner] = '../' + os.path.join(pagefolder, filename).replace('\\', '/')
+                res[inner] = '../../' + os.path.join(pagefolder, filename).replace('\\', '/')
                 if tag == 'img':
                     if res.has_attr('srcset'):
                         res.attrs['srcset'] = ''
