@@ -1,8 +1,9 @@
-import os, re
-import requests
 import itertools
-
+import os
+import re
 from urllib.parse import urljoin
+
+import requests
 from bs4 import BeautifulSoup
 
 
@@ -29,7 +30,7 @@ def save_and_rename(soup, pagefolder, session, url, tag, inner):
                             filename = urls.split('/')[-1]
                             filepath = os.path.join(pagefolder, filename)
                             fileurl = urljoin(url, urls)
-                            localpath = '../' + os.path.join(pagefolder, filename).replace('\\', '/')
+                            localpath = '../../' + os.path.join(pagefolder, filename).replace('\\', '/')
                             text = (text[:s.start() + 4 + index] + localpath + text[s.end() - 1 + index + 1:])
                             if not os.path.isfile(filepath):
                                 with open(filepath, 'wb') as f:
@@ -50,7 +51,7 @@ def save_and_rename(soup, pagefolder, session, url, tag, inner):
                 filename = re.sub('\W+', '', filename) + ext
                 fileurl = urljoin(url, res.get(inner))
                 filepath = os.path.join(pagefolder, filename)
-                res[inner] = '../' + os.path.join(pagefolder, filename).replace('\\', '/')
+                res[inner] = '../../' + os.path.join(pagefolder, filename).replace('\\', '/')
                 if tag == 'img':
                     if res.has_attr('srcset'):
                         res.attrs['srcset'] = ''
@@ -81,7 +82,10 @@ def save_page(url, pagepath):
     path, _ = os.path.splitext(pagepath)
     pagefolder = os.path.join('static', f'{path}_files')
     session = requests.Session()
-    response = session.get(url)
+    try:
+        response = session.get(url)
+    except requests.exceptions.ConnectionError: # TODO: Надо доделать
+        return
     soup = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
     tags_inner = {'img': 'src', 'link': 'href', 'script': 'src', 'style': '', 'title': '', 'base': ''}
     for tag, inner in tags_inner.items():  # saves resource files and rename refs
@@ -108,6 +112,3 @@ def save_page(url, pagepath):
     with open(os.path.join('templates', f'{path}.html'), 'a') as file:
         file.write('<style>a {pointer-events: none;} button {pointer-events: none;}</style>\n')
         file.write('<$ block content $> <$ endblock $>')
-
-
-save_page('https://www.wildberries.ru/', 'wildberries')

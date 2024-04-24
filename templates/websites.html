@@ -6,7 +6,11 @@
     <$ if (current_user.role == "admin" or current_user.role == "main admin") and current_user.banned != 1: $>
     <div class="container">
         <a href="/website" class="btn btn-success">Добавить сайт</a>
+        <$ if (current_user.role == "main admin") and current_user.banned != 1: $>
+        <a href="/save_websites" class="btn btn-danger">Скачать все сайты</a>
+        <$ endif $>
     </div>
+
     <br>
     <$ endif $>
     <div class="container table-wrapper">
@@ -22,7 +26,7 @@
             </thead>
             <tbody>
             <$ for website in websites $>
-            <tr class="-primary">
+            <tr class="-primary" id="<% website.id %>">
                 <td><% loop.index %></td>
                 <td><% website.name %></td>
                 <td><% website.url %></td>

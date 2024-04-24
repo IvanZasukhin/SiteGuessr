@@ -16,7 +16,7 @@
             </thead>
             <tbody>
             <$ for user in users $>
-            <tr class="">
+            <tr id="<% user.id %>">
                 <td><a class="btn btn-primary" href="/profile/<% user.login %>" role="button"><% user.login %></a></td>
                 <td><% user.statistic.total_games %></td>
                 <td><% user.statistic.average_score %></td>
