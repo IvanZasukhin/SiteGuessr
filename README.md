@@ -3,7 +3,7 @@
 
 # ТЗ
 ## БД
-3 таблицы: websites(id, name, url), users(id, login, description, role, banned, created_date, modified_date, hashed_password), games(id, user_id, websites_id, scores, finish_date), statistic(id, user_id, total_games, correct_answers, wrong_answers, average_score, best_score)
+4 таблицы: websites(id, name, url), users(id, login, description, role, banned, created_date, modified_date, hashed_password), games(id, user_id, websites_id, scores, finish_date), statistic(id, user_id, total_games, correct_answers, wrong_answers, average_score, best_score)
 ## 1. Общие требования:
 1.1 Разработать развлекательную платформу под названием SiteGuessr, предоставляющую возможность пользователям угадывать названия случайно выбранных веб-сайтов.  
 1.2 Реализовать функцию перекидывания пользователя на случайный сайт из собственного API.

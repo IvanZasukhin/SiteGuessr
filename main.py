@@ -92,10 +92,22 @@ def register():
             return render_template("register.html", **params)
         db_sess = db_session.create_session()
         user = User()
+
+        if not form.login.data.strip() or not all(
+                [True if i not in '!?@#$%^&*()_ ~\"\'' else False for i in form.login.data.strip()]):
+            params["message"] = "Некорректный логин"
+            return render_template("register.html", **params)
+
+        if not form.password.data.strip() or not all(
+                [True if i not in '!?@#$%^&()_ ~\"\'' else False for i in form.password.data.strip()]):
+            params["message"] = "Некорректный пароль"
+            return render_template("register.html", **params)
+
         if db_sess.query(User).filter(User.login == form.login.data).first():
             params["message"] = "Уже есть такой пользователь"
             return render_template("register.html", **params)
-        user.login = form.login.data
+
+        user.login = form.login.data.strip()
         user.description = form.description.data
         user.modified_date = datetime.datetime.now()
         user.created_date = datetime.datetime.now()
@@ -487,7 +499,7 @@ def main():
 @app.errorhandler(404)
 def not_found(error):
     params = {"title": "error",
-              "error": "Такой страницы у нас нет."}
+              "error": "Такой страницы у нас нет"}
     return render_template("error.html", **params), 404
     # return make_response(jsonify({"error": "Not found"}), 404)
 
@@ -495,7 +507,7 @@ def not_found(error):
 @app.errorhandler(400)
 def bad_request(_):
     params = {"title": "error",
-              "error": "Запрос корректен, но сайт почему-то не может его обработать."}
+              "error": "Запрос корректен, но сайт почему-то не может его обработать"}
     return render_template("error.html", **params), 400
     # return make_response(jsonify({"error": "Bad Request"}), 400)
 
@@ -503,7 +515,7 @@ def bad_request(_):
 @app.errorhandler(401)
 def authorisation_error(error):
     params = {"title": "error",
-              "error": "Пожалуйста, авторизуйтесь."}
+              "error": "Пожалуйста, авторизуйтесь"}
     return render_template("error.html", **params), 401
 
 

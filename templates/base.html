@@ -32,20 +32,20 @@
                     </li>
                 </ul>
             </div>
-            <div class="form-check form-switch px-3">
-                <input class="form-check-input" type="checkbox" role="switch" id="btnSwitch" checked>
-                <label class="form-check-label" for="btnSwitch">Тёмная тема</label>
-                <script>
-                        document.getElementById('btnSwitch').addEventListener('click',()=>{
-                            if (document.documentElement.getAttribute('data-bs-theme') == 'dark') {
-                                document.documentElement.setAttribute('data-bs-theme','light')
-                            }
-                            else {
-                                document.documentElement.setAttribute('data-bs-theme','dark')
-                            }
-                        })
-                </script>
-            </div>
+<!--            <div class="form-check form-switch px-3">-->
+<!--                <input class="form-check-input" type="checkbox" role="switch" id="btnSwitch" checked>-->
+<!--                <label class="form-check-label" for="btnSwitch">Тёмная тема</label>-->
+<!--                <script>-->
+<!--                        document.getElementById('btnSwitch').addEventListener('click',()=>{-->
+<!--                            if (document.documentElement.getAttribute('data-bs-theme') == 'dark') {-->
+<!--                                document.documentElement.setAttribute('data-bs-theme','light')-->
+<!--                            }-->
+<!--                            else {-->
+<!--                                document.documentElement.setAttribute('data-bs-theme','dark')-->
+<!--                            }-->
+<!--                        })-->
+<!--                </script>-->
+<!--            </div>-->
             <div class="row">
                 <$ if current_user.is_authenticated $>
                 <div class="dropdown dropstart">
@@ -80,7 +80,7 @@
     <ul class="nav justify-content-center border-bottom pb-3 mb-3">
         <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
     </ul>
-    <p class="text-center text-muted">© 2024 Company, YandexLyceum</p>
+    <p class="text-center text-muted">2024 YandexLyceum</p>
 </footer>
 </body>
 </html>
