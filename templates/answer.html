@@ -13,14 +13,25 @@
         margin: 0 auto;
         padding: 10px;
         background-color: #e3e3e3;
+        border-radius: 0 0 10px 10px;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: calc(-1* var(--bs-gutter-y));
+        margin-right: calc(-.5* var(--bs-gutter-x));
+        margin-left: calc(-.5* var(--bs-gutter-x));
+    }
 
 </style>
+
 <div class="answer">
     <form action="" method="post" class="row gy-2 gx-3 align-items-center">
         <% form.csrf_token %>
         <div class="col-auto">
             <% form.title.label(class="visually-hidden", for="autoSizingInput") %>
-            <% form.title(class="form-control", id="autoSizingInput", placeholder="Введите название") %>
+            <% form.title(class="form-control", id="answer-input", placeholder="Введите название") %>
             <$ if form.title.errors $>
                 <$ for error in form.title.errors $>
                 <div>
