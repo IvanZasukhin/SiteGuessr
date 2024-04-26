@@ -64,20 +64,6 @@ def save_and_rename(soup, pagefolder, session, url, tag, inner):
                 pass
 
 
-# def try_delete_logo(soup):
-#     for res in soup.findAll():
-#         if res.attrs:
-#             for attr in res.attrs:
-#                 if 'logo' in attr:
-#                     res.string = ''
-#                     break
-#                 elif res.has_attr('class'):
-#                     for cl in res.attrs['class']:
-#                         if 'logo' in cl:
-#                             res.string = ''
-#                             break
-
-
 def save_page(url, pagepath):
     path, _ = os.path.splitext(pagepath)
     pagefolder = os.path.join('static', f'{path}_files')
