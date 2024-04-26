@@ -1,6 +1,5 @@
 import datetime
 import threading
-import jinja2
 from random import choices
 import os
 from urllib.parse import urlparse
@@ -37,7 +36,6 @@ api = Api(app)
 app.config["SECRET_KEY"] = "yandex_lyceum_secret_key"
 login_manager = LoginManager()
 login_manager.init_app(app)
-templateEnv = jinja2.Environment(comment_start_string="{=", comment_end_string="=}", autoescape=True)
 
 
 @app.route("/")

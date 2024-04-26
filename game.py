@@ -84,7 +84,7 @@ def save_page(url, pagepath):
     session = requests.Session()
     try:
         response = session.get(url)
-    except requests.exceptions.ConnectionError: # TODO: Надо доделать
+    except requests.exceptions.ConnectionError:
         return
     soup = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
     tags_inner = {'img': 'src', 'link': 'href', 'script': 'src', 'style': '', 'title': '', 'base': ''}
